@@ -1,0 +1,343 @@
+#+TITLE: Problem 1 Row/Col Queue Function Tests
+#+TESTY: PREFIX="prob1"
+#+TESTY: USE_VALGRIND=1
+
+* rcqueue_allocate_free1
+#+TESTY: program='./test_mazesolve_funcs rcqueue_allocate_free1'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_allocate_free1") {
+    // Allocate and free an empty queue.
+    rcqueue_t *queue = rcqueue_allocate();
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->front: %p\n",queue->front);
+    printf("queue->rear:  %p\n",queue->rear);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+queue->count: 0
+queue->front: (nil)
+queue->rear:  (nil)
+#+END_SRC
+
+* rcqueue_add_rear1
+#+TESTY: program='./test_mazesolve_funcs rcqueue_add_rear1'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_add_rear1") {
+    // Add a single element to the queue and print that node. Verifies
+    // that the front/rear node is the same for a single element add.
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,5,9);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->front->row: %d\n",queue->front->row);
+    printf("queue->front->col: %d\n",queue->front->col);
+    printf("queue->rear->row: %d\n",queue->rear->row);
+    printf("queue->rear->col: %d\n",queue->rear->col);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+queue->count: 1
+queue->front->row: 5
+queue->front->col: 9
+queue->rear->row: 5
+queue->rear->col: 9
+#+END_SRC
+
+* rcqueue_add_rear2
+#+TESTY: program='./test_mazesolve_funcs rcqueue_add_rear2'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_add_rear2") {
+    // Add 3 elements successively to the queue then print the
+    // front/rear elements.
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,10,2);
+    rcqueue_add_rear(queue,9,3);
+    rcqueue_add_rear(queue,11,4);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->front->row: %d\n",queue->front->row);
+    printf("queue->front->col: %d\n",queue->front->col);
+    printf("queue->rear->row: %d\n",queue->rear->row);
+    printf("queue->rear->col: %d\n",queue->rear->col);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+queue->count: 3
+queue->front->row: 10
+queue->front->col: 2
+queue->rear->row: 11
+queue->rear->col: 4
+#+END_SRC
+
+* rcqueue_get_front1
+#+TESTY: program='./test_mazesolve_funcs rcqueue_get_front1'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_get_front1") {
+    // Add several elements then use accessor get_front() to set
+    // integers to the front row/col. Ensures that proper
+    // pointer-dereferencing is used.
+    int ret, row, col;
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,10,2);
+    rcqueue_add_rear(queue,9,3);
+    rcqueue_add_rear(queue,11,4);
+    ret = rcqueue_get_front(queue, &row, &col);
+    printf("ret: %d\n",ret);
+    printf("front row/col: (%d,%d)\n",row,col);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+ret: 1
+front row/col: (10,2)
+#+END_SRC
+
+* rcqueue_remove_front1
+#+TESTY: program='./test_mazesolve_funcs rcqueue_remove_front1'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_remove_front1") {
+    // Add 3 coordinates to a queue and remove 1 then print the queue.
+    int ret, row, col;
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,10,2);
+    rcqueue_add_rear(queue,9,3);
+    rcqueue_add_rear(queue,11,4);
+    ret = rcqueue_remove_front(queue);
+    printf("ret: %d\n",ret);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->front->row: %d\n",queue->front->row);
+    printf("queue->front->col: %d\n",queue->front->col);
+    printf("queue->rear->row: %d\n",queue->rear->row);
+    printf("queue->rear->col: %d\n",queue->rear->col);
+    ret = rcqueue_get_front(queue, &row, &col);
+    printf("ret: %d\n",ret);
+    printf("front row/col: (%d,%d)\n",row,col);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+ret: 1
+queue->count: 2
+queue->front->row: 9
+queue->front->col: 3
+queue->rear->row: 11
+queue->rear->col: 4
+ret: 1
+front row/col: (9,3)
+#+END_SRC
+
+* rcqueue_remove_front2
+#+TESTY: program='./test_mazesolve_funcs rcqueue_remove_front2'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_remove_front2") {
+    // Add 3 coordinates then remove two. Shows whether the front/rear
+    // nodes coincide when there is one element left after removal.
+    int ret, row, col;
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,10,2);
+    rcqueue_add_rear(queue,9,3);
+    rcqueue_add_rear(queue,11,4);
+    ret = rcqueue_remove_front(queue);
+    printf("ret: %d\n",ret);
+    ret = rcqueue_remove_front(queue);
+    printf("ret: %d\n",ret);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->front->row: %d\n",queue->front->row);
+    printf("queue->front->col: %d\n",queue->front->col);
+    printf("queue->rear->row: %d\n",queue->rear->row);
+    printf("queue->rear->col: %d\n",queue->rear->col);
+    ret = rcqueue_get_front(queue, &row, &col);
+    printf("ret: %d\n",ret);
+    printf("front row/col: (%d,%d)\n",row,col);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+ret: 1
+ret: 1
+queue->count: 1
+queue->front->row: 11
+queue->front->col: 4 
+queue->rear->row: 11 
+queue->rear->col: 4  
+ret: 1               
+front row/col: (11,4)
+#+END_SRC
+
+* rcqueue_remove_front3
+#+TESTY: program='./test_mazesolve_funcs rcqueue_remove_front3'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_remove_front3") {
+    // Adds 3 coordinates to the queue and then removes all 3 before
+    // printing to show whether the queue is properly empty. If rear
+    // pointer is not set to NULL, this test will print incorrect
+    // results. Checks progressive attempts to get the row/col of the
+    // front node to verify it is the correct value and the return
+    // values of remove/get calls.
+    int ret, row, col;
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,10,2);
+    rcqueue_add_rear(queue,9,3);
+    rcqueue_add_rear(queue,11,4);
+    ret = rcqueue_remove_front(queue);
+    printf("remove ret: %d\n",ret);
+    ret = rcqueue_get_front(queue, &row, &col);
+    printf("get ret: %d\n",ret);
+    printf("front row/col: (%d,%d)\n",row,col);
+    ret = rcqueue_remove_front(queue);
+    printf("remove ret: %d\n",ret);
+    ret = rcqueue_get_front(queue, &row, &col);
+    printf("get ret: %d\n",ret);
+    printf("front row/col: (%d,%d)\n",row,col);
+    ret = rcqueue_remove_front(queue);
+    printf("remove ret: %d\n",ret);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->front: %p\n",queue->front);
+    printf("queue->rear:  %p\n",queue->rear);
+    ret = rcqueue_get_front(queue, &row, &col);
+    printf("get ret: %d\n",ret);
+    printf("front row/col: (%d,%d) //previous vals\n",row,col);
+    ret = rcqueue_remove_front(queue);
+    printf("remove ret: %d\n",ret);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->count: %d\n",queue->count);
+    printf("queue->front: %p\n",queue->front);
+    printf("queue->rear:  %p\n",queue->rear);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+remove ret: 1
+get ret: 1
+front row/col: (9,3)
+remove ret: 1
+get ret: 1
+front row/col: (11,4)
+remove ret: 1
+queue->count: 0
+queue->count: 0
+queue->front: (nil)
+queue->rear:  (nil)
+get ret: 0
+front row/col: (11,4) //previous vals
+remove ret: 0
+queue->count: 0
+queue->count: 0
+queue->front: (nil)
+queue->rear:  (nil)
+#+END_SRC
+
+* rcqueue_print1
+#+TESTY: program='./test_mazesolve_funcs rcqueue_print1'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_print1") {
+    // Print an empty and single element queue
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,10,2);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+IF_TEST("rcqueue_print1") {
+    // Add coordinates to a queue printing after each addition to
+    // ensure proper printing format.
+    rcqueue_t *queue = rcqueue_allocate();
+    printf("EMPTY QUEUE:\n");
+    rcqueue_print(queue);
+    rcqueue_add_rear(queue,10,2);
+    printf("\nONE ELEMENT QUEUE:\n");
+    rcqueue_print(queue);
+    rcqueue_add_rear(queue,9,3);
+    rcqueue_add_rear(queue,11,4);
+    printf("THREE ELEMENT QUEUE:\n");
+    rcqueue_print(queue);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+EMPTY QUEUE:
+queue count: 0
+NN ROW COL
+
+ONE ELEMENT QUEUE:
+queue count: 1
+NN ROW COL
+ 0  10   2
+THREE ELEMENT QUEUE:
+queue count: 3
+NN ROW COL
+ 0  10   2
+ 1   9   3
+ 2  11   4
+2 tests run
+#+END_SRC
+
+* rcqueue_print1
+#+TESTY: program='./test_mazesolve_funcs rcqueue_print1'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_print1") {
+    // Print an empty and single element queue
+    rcqueue_t *queue = rcqueue_allocate();
+    rcqueue_add_rear(queue,10,2);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+IF_TEST("rcqueue_print1") {
+    // Add coordinates to a queue printing after each addition to
+    // ensure proper printing format.
+    rcqueue_t *queue = rcqueue_allocate();
+    printf("EMPTY QUEUE:\n");
+    rcqueue_print(queue);
+    rcqueue_add_rear(queue,10,2);
+    printf("\nONE ELEMENT QUEUE:\n");
+    rcqueue_print(queue);
+    rcqueue_add_rear(queue,9,3);
+    rcqueue_add_rear(queue,11,4);
+    printf("THREE ELEMENT QUEUE:\n");
+    rcqueue_print(queue);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+EMPTY QUEUE:
+queue count: 0
+NN ROW COL
+
+ONE ELEMENT QUEUE:
+queue count: 1
+NN ROW COL
+ 0  10   2
+THREE ELEMENT QUEUE:
+queue count: 3
+NN ROW COL
+ 0  10   2
+ 1   9   3
+ 2  11   4
+2 tests run
+#+END_SRC
+
+* rcqueue_print2
+#+TESTY: program='./test_mazesolve_funcs rcqueue_print2'
+#+BEGIN_SRC sh
+IF_TEST("rcqueue_print2") {
+    // Add more coordinates to the queue and print it to show that the
+    // output is displayed correctly.
+    rcqueue_t *queue = rcqueue_allocate();
+    for(int i=1; i<=15; i++){
+      rcqueue_add_rear(queue,i,i*2+1);
+    }
+    rcqueue_print(queue);
+    rcqueue_free(queue);
+}
+---OUTPUT---
+queue count: 15
+NN ROW COL
+ 0   1   3
+ 1   2   5
+ 2   3   7
+ 3   4   9
+ 4   5  11
+ 5   6  13
+ 6   7  15
+ 7   8  17
+ 8   9  19
+ 9  10  21
+10  11  23
+11  12  25
+12  13  27
+13  14  29
+14  15  31
+#+END_SRC
+

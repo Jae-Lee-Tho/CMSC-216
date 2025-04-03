@@ -1,0 +1,4104 @@
+#+TITLE: Problem 4 File Input and main Tests
+#+TESTY: PREFIX="prob4"
+#+TESTY: USE_VALGRIND=1
+* maze_from_small
+#+TESTY: program='./test_mazesolve_funcs maze_from_file_small'
+#+BEGIN_SRC sh
+IF_TEST("maze_from_file_small") {
+    // Load a small maze from a file
+    LOG_LEVEL = LOG_ALL;
+    maze_t *maze = maze_from_file("data/maze-small-twopath1.txt");
+    printf("LOADED MAZE:\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+LOG: expecting 5 rows and 5 columns
+LOG: beginning to read tiles
+LOG: (0,0) has character '#' type 1
+LOG: (0,1) has character '#' type 1
+LOG: (0,2) has character '#' type 1
+LOG: (0,3) has character '#' type 1
+LOG: (0,4) has character '#' type 1
+LOG: finished reading row 0 of tiles
+LOG: (1,0) has character '#' type 1
+LOG: (1,1) has character ' ' type 2
+LOG: (1,2) has character 'S' type 4
+LOG: setting START at (1,2)
+LOG: (1,3) has character ' ' type 2
+LOG: (1,4) has character '#' type 1
+LOG: finished reading row 1 of tiles
+LOG: (2,0) has character '#' type 1
+LOG: (2,1) has character ' ' type 2
+LOG: (2,2) has character '#' type 1
+LOG: (2,3) has character ' ' type 2
+LOG: (2,4) has character '#' type 1
+LOG: finished reading row 2 of tiles
+LOG: (3,0) has character '#' type 1
+LOG: (3,1) has character ' ' type 2
+LOG: (3,2) has character 'E' type 5
+LOG: setting END at (3,2)
+LOG: (3,3) has character ' ' type 2
+LOG: (3,4) has character '#' type 1
+LOG: finished reading row 3 of tiles
+LOG: (4,0) has character '#' type 1
+LOG: (4,1) has character '#' type 1
+LOG: (4,2) has character '#' type 1
+LOG: (4,3) has character '#' type 1
+LOG: (4,4) has character '#' type 1
+LOG: finished reading row 4 of tiles
+LOADED MAZE:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+#+END_SRC
+
+* maze_from_file_medium
+#+TESTY: program='./test_mazesolve_funcs maze_from_file_medium'
+#+BEGIN_SRC sh
+IF_TEST("maze_from_file_medium") {
+    // Load a medium maze from a file AND perform BFS iteration on it
+    // then set the solution for display.
+    LOG_LEVEL = LOG_ALL;
+    maze_t *maze = maze_from_file("data/maze-medium1.txt");
+    printf("LOADED MAZE:\n");
+    maze_print_tiles(maze);
+    maze_bfs_iterate(maze);
+    printf("Maze AFTER BFS iteration\n");
+    maze_print_state(maze);
+    int ret = maze_set_solution(maze);
+    printf("ret: %d\n",ret);
+    printf("Maze AFTER Setting Solution\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+LOG: expecting 10 rows and 8 columns
+LOG: beginning to read tiles
+LOG: (0,0) has character '#' type 1
+LOG: (0,1) has character '#' type 1
+LOG: (0,2) has character '#' type 1
+LOG: (0,3) has character '#' type 1
+LOG: (0,4) has character '#' type 1
+LOG: (0,5) has character '#' type 1
+LOG: (0,6) has character '#' type 1
+LOG: (0,7) has character '#' type 1
+LOG: finished reading row 0 of tiles
+LOG: (1,0) has character '#' type 1
+LOG: (1,1) has character ' ' type 2
+LOG: (1,2) has character ' ' type 2
+LOG: (1,3) has character ' ' type 2
+LOG: (1,4) has character ' ' type 2
+LOG: (1,5) has character ' ' type 2
+LOG: (1,6) has character 'S' type 4
+LOG: setting START at (1,6)
+LOG: (1,7) has character '#' type 1
+LOG: finished reading row 1 of tiles
+LOG: (2,0) has character '#' type 1
+LOG: (2,1) has character ' ' type 2
+LOG: (2,2) has character '#' type 1
+LOG: (2,3) has character ' ' type 2
+LOG: (2,4) has character '#' type 1
+LOG: (2,5) has character '#' type 1
+LOG: (2,6) has character '#' type 1
+LOG: (2,7) has character '#' type 1
+LOG: finished reading row 2 of tiles
+LOG: (3,0) has character '#' type 1
+LOG: (3,1) has character ' ' type 2
+LOG: (3,2) has character '#' type 1
+LOG: (3,3) has character ' ' type 2
+LOG: (3,4) has character ' ' type 2
+LOG: (3,5) has character ' ' type 2
+LOG: (3,6) has character ' ' type 2
+LOG: (3,7) has character '#' type 1
+LOG: finished reading row 3 of tiles
+LOG: (4,0) has character '#' type 1
+LOG: (4,1) has character ' ' type 2
+LOG: (4,2) has character '#' type 1
+LOG: (4,3) has character '#' type 1
+LOG: (4,4) has character '#' type 1
+LOG: (4,5) has character '#' type 1
+LOG: (4,6) has character '#' type 1
+LOG: (4,7) has character '#' type 1
+LOG: finished reading row 4 of tiles
+LOG: (5,0) has character '#' type 1
+LOG: (5,1) has character ' ' type 2
+LOG: (5,2) has character ' ' type 2
+LOG: (5,3) has character ' ' type 2
+LOG: (5,4) has character ' ' type 2
+LOG: (5,5) has character ' ' type 2
+LOG: (5,6) has character ' ' type 2
+LOG: (5,7) has character '#' type 1
+LOG: finished reading row 5 of tiles
+LOG: (6,0) has character '#' type 1
+LOG: (6,1) has character '#' type 1
+LOG: (6,2) has character '#' type 1
+LOG: (6,3) has character '#' type 1
+LOG: (6,4) has character '#' type 1
+LOG: (6,5) has character '#' type 1
+LOG: (6,6) has character ' ' type 2
+LOG: (6,7) has character '#' type 1
+LOG: finished reading row 6 of tiles
+LOG: (7,0) has character '#' type 1
+LOG: (7,1) has character ' ' type 2
+LOG: (7,2) has character '#' type 1
+LOG: (7,3) has character '#' type 1
+LOG: (7,4) has character ' ' type 2
+LOG: (7,5) has character ' ' type 2
+LOG: (7,6) has character ' ' type 2
+LOG: (7,7) has character '#' type 1
+LOG: finished reading row 7 of tiles
+LOG: (8,0) has character '#' type 1
+LOG: (8,1) has character ' ' type 2
+LOG: (8,2) has character '#' type 1
+LOG: (8,3) has character ' ' type 2
+LOG: (8,4) has character ' ' type 2
+LOG: (8,5) has character '#' type 1
+LOG: (8,6) has character 'E' type 5
+LOG: setting END at (8,6)
+LOG: (8,7) has character '#' type 1
+LOG: finished reading row 8 of tiles
+LOG: (9,0) has character '#' type 1
+LOG: (9,1) has character '#' type 1
+LOG: (9,2) has character '#' type 1
+LOG: (9,3) has character '#' type 1
+LOG: (9,4) has character '#' type 1
+LOG: (9,5) has character '#' type 1
+LOG: (9,6) has character '#' type 1
+LOG: (9,7) has character '#' type 1
+LOG: finished reading row 9 of tiles
+LOADED MAZE:
+maze: 10 rows 8 cols
+      (1,6) start
+      (8,6) end
+maze tiles:
+########
+#     S#
+# # ####
+# #    #
+# ######
+#      #
+###### #
+# ##   #
+# #  #E#
+########
+LOG: BFS initialization complete
+########:  0
+#     0#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   6
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,6)
+LOG: Skipping BLOCKED tile at (0,6)
+LOG: Skipping BLOCKED tile at (2,6)
+LOG: Found tile at (1,5) with len 1 path: W
+LOG: Skipping BLOCKED tile at (1,7)
+LOG: maze state after BFS step
+########:  0
+#    10#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   5
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,5)
+LOG: Skipping BLOCKED tile at (0,5)
+LOG: Skipping BLOCKED tile at (2,5)
+LOG: Found tile at (1,4) with len 2 path: WW
+LOG: Skipping FOUND tile at (1,6)
+LOG: maze state after BFS step
+########:  0
+#   210#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   4
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,4)
+LOG: Skipping BLOCKED tile at (0,4)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: Found tile at (1,3) with len 3 path: WWW
+LOG: Skipping FOUND tile at (1,5)
+LOG: maze state after BFS step
+########:  0
+#  3210#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Found tile at (2,3) with len 4 path: WWWS
+LOG: Found tile at (1,2) with len 4 path: WWWW
+LOG: Skipping FOUND tile at (1,4)
+LOG: maze state after BFS step
+########:  0
+# 43210#:  1
+# #4####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   1   2
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: Skipping FOUND tile at (1,3)
+LOG: Found tile at (3,3) with len 5 path: WWWSS
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: maze state after BFS step
+########:  0
+# 43210#:  1
+# #4####:  2
+# #5   #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   1   2
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Found tile at (1,1) with len 5 path: WWWWW
+LOG: Skipping FOUND tile at (1,3)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+# #4####:  2
+# #5   #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   1   1
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: Skipping FOUND tile at (2,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping BLOCKED tile at (3,2)
+LOG: Found tile at (3,4) with len 6 path: WWWSSE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+# #4####:  2
+# #56  #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   3   4
+LOG: BFS STEP 8
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 6 path: WWWWWS
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping FOUND tile at (1,2)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+# #56  #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   4
+ 1   2   1
+LOG: BFS STEP 9
+LOG: processing neighbors of (3,4)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: Skipping BLOCKED tile at (4,4)
+LOG: Skipping FOUND tile at (3,3)
+LOG: Found tile at (3,5) with len 7 path: WWWSSEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+# #567 #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   3   5
+LOG: BFS STEP 10
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 7 path: WWWWWSS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#567 #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   5
+ 1   3   1
+LOG: BFS STEP 11
+LOG: processing neighbors of (3,5)
+LOG: Skipping BLOCKED tile at (2,5)
+LOG: Skipping BLOCKED tile at (4,5)
+LOG: Skipping FOUND tile at (3,4)
+LOG: Found tile at (3,6) with len 8 path: WWWSSEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   6
+LOG: BFS STEP 12
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Found tile at (4,1) with len 8 path: WWWWWSSS
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Skipping BLOCKED tile at (3,2)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   6
+ 1   4   1
+LOG: BFS STEP 13
+LOG: processing neighbors of (3,6)
+LOG: Skipping BLOCKED tile at (2,6)
+LOG: Skipping BLOCKED tile at (4,6)
+LOG: Skipping FOUND tile at (3,5)
+LOG: Skipping BLOCKED tile at (3,7)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   4   1
+LOG: BFS STEP 14
+LOG: processing neighbors of (4,1)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Found tile at (5,1) with len 9 path: WWWWWSSSS
+LOG: Skipping BLOCKED tile at (4,0)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9     #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   1
+LOG: BFS STEP 15
+LOG: processing neighbors of (5,1)
+LOG: Skipping FOUND tile at (4,1)
+LOG: Skipping BLOCKED tile at (6,1)
+LOG: Skipping BLOCKED tile at (5,0)
+LOG: Found tile at (5,2) with len 10 path: WWWWWSSSSE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a    #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   2
+LOG: BFS STEP 16
+LOG: processing neighbors of (5,2)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: Skipping BLOCKED tile at (6,2)
+LOG: Skipping FOUND tile at (5,1)
+LOG: Found tile at (5,3) with len 11 path: WWWWWSSSSEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1   #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   3
+LOG: BFS STEP 17
+LOG: processing neighbors of (5,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping BLOCKED tile at (6,3)
+LOG: Skipping FOUND tile at (5,2)
+LOG: Found tile at (5,4) with len 12 path: WWWWWSSSSEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a12  #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   4
+LOG: BFS STEP 18
+LOG: processing neighbors of (5,4)
+LOG: Skipping BLOCKED tile at (4,4)
+LOG: Skipping BLOCKED tile at (6,4)
+LOG: Skipping FOUND tile at (5,3)
+LOG: Found tile at (5,5) with len 13 path: WWWWWSSSSEEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a123 #:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   5
+LOG: BFS STEP 19
+LOG: processing neighbors of (5,5)
+LOG: Skipping BLOCKED tile at (4,5)
+LOG: Skipping BLOCKED tile at (6,5)
+LOG: Skipping FOUND tile at (5,4)
+LOG: Found tile at (5,6) with len 14 path: WWWWWSSSSEEEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+###### #:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   6
+LOG: BFS STEP 20
+LOG: processing neighbors of (5,6)
+LOG: Skipping BLOCKED tile at (4,6)
+LOG: Found tile at (6,6) with len 15 path: WWWWWSSSSEEEEES
+LOG: Skipping FOUND tile at (5,5)
+LOG: Skipping BLOCKED tile at (5,7)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##   #:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   6   6
+LOG: BFS STEP 21
+LOG: processing neighbors of (6,6)
+LOG: Skipping FOUND tile at (5,6)
+LOG: Found tile at (7,6) with len 16 path: WWWWWSSSSEEEEESS
+LOG: Skipping BLOCKED tile at (6,5)
+LOG: Skipping BLOCKED tile at (6,7)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##  6#:  7
+# #  #E#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   7   6
+LOG: BFS STEP 22
+LOG: processing neighbors of (7,6)
+LOG: Skipping FOUND tile at (6,6)
+LOG: Found tile at (8,6) with len 17 path: WWWWWSSSSEEEEESSS
+LOG: Found tile at (7,5) with len 17 path: WWWWWSSSSEEEEESSW
+LOG: Skipping BLOCKED tile at (7,7)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ## 76#:  7
+# #  #7#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   8   6
+ 1   7   5
+LOG: BFS STEP 23
+LOG: processing neighbors of (8,6)
+LOG: Skipping FOUND tile at (7,6)
+LOG: Skipping BLOCKED tile at (9,6)
+LOG: Skipping BLOCKED tile at (8,5)
+LOG: Skipping BLOCKED tile at (8,7)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ## 76#:  7
+# #  #7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   7   5
+LOG: BFS STEP 24
+LOG: processing neighbors of (7,5)
+LOG: Skipping BLOCKED tile at (6,5)
+LOG: Skipping BLOCKED tile at (8,5)
+LOG: Found tile at (7,4) with len 18 path: WWWWWSSSSEEEEESSWW
+LOG: Skipping FOUND tile at (7,6)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+# #  #7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   7   4
+LOG: BFS STEP 25
+LOG: processing neighbors of (7,4)
+LOG: Skipping BLOCKED tile at (6,4)
+LOG: Found tile at (8,4) with len 19 path: WWWWWSSSSEEEEESSWWS
+LOG: Skipping BLOCKED tile at (7,3)
+LOG: Skipping FOUND tile at (7,5)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+# # 9#7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   8   4
+LOG: BFS STEP 26
+LOG: processing neighbors of (8,4)
+LOG: Skipping FOUND tile at (7,4)
+LOG: Skipping BLOCKED tile at (9,4)
+LOG: Found tile at (8,3) with len 20 path: WWWWWSSSSEEEEESSWWSW
+LOG: Skipping BLOCKED tile at (8,5)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+# #b9#7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   8   3
+LOG: BFS STEP 27
+LOG: processing neighbors of (8,3)
+LOG: Skipping BLOCKED tile at (7,3)
+LOG: Skipping BLOCKED tile at (9,3)
+LOG: Skipping BLOCKED tile at (8,2)
+LOG: Skipping FOUND tile at (8,4)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+# #b9#7#:  8
+########:  9
+01234567
+0       
+queue count: 0
+NN ROW COL
+Maze AFTER BFS iteration
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+# #b9#7#:  8
+########:  9
+01234567
+0       
+queue count: 0
+NN ROW COL
+LOG: solution START at (1,6)
+LOG: solution path[0] is WEST, set (1,5) to ONPATH
+LOG: solution path[1] is WEST, set (1,4) to ONPATH
+LOG: solution path[2] is WEST, set (1,3) to ONPATH
+LOG: solution path[3] is WEST, set (1,2) to ONPATH
+LOG: solution path[4] is WEST, set (1,1) to ONPATH
+LOG: solution path[5] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[6] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[7] is SOUTH, set (4,1) to ONPATH
+LOG: solution path[8] is SOUTH, set (5,1) to ONPATH
+LOG: solution path[9] is EAST, set (5,2) to ONPATH
+LOG: solution path[10] is EAST, set (5,3) to ONPATH
+LOG: solution path[11] is EAST, set (5,4) to ONPATH
+LOG: solution path[12] is EAST, set (5,5) to ONPATH
+LOG: solution path[13] is EAST, set (5,6) to ONPATH
+LOG: solution path[14] is SOUTH, set (6,6) to ONPATH
+LOG: solution path[15] is SOUTH, set (7,6) to ONPATH
+LOG: solution path[16] is SOUTH, set (8,6) to ONPATH
+LOG: solution END at (8,6)
+ret: 1
+Maze AFTER Setting Solution
+maze: 10 rows 8 cols
+      (1,6) start
+      (8,6) end
+maze tiles:
+########
+#.....S#
+#.# ####
+#.#    #
+#.######
+#......#
+######.#
+# ##  .#
+# #  #E#
+########
+#+END_SRC
+
+* maze_from_file_no_file
+#+TESTY: program='./test_mazesolve_funcs maze_from_file_no_file'
+#+BEGIN_SRC sh
+IF_TEST("maze_from_file_no_file") {
+    // Intentionally try to load a file that does not exist to ensure
+    // that NULL is returned.
+    LOG_LEVEL = LOG_ALL;
+    maze_t *maze = maze_from_file("data/no-such-maze.txt");
+    printf("maze: %p\n",maze);
+}
+---OUTPUT---
+ERROR: could not open file data/no-such-maze.txt
+maze: (nil)
+#+END_SRC
+
+* maze_from_file_room12
+#+TESTY: program='./test_mazesolve_funcs maze_from_file_room12'
+#+BEGIN_SRC sh
+IF_TEST("maze_from_file_room12") {
+    // Load 2 medium mazes from files and print them
+    LOG_LEVEL = LOG_ALL;
+    maze_t *maze;
+    maze = maze_from_file("data/maze-room1.txt");
+    printf("LOADED MAZE:\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+    maze = maze_from_file("data/maze-room2.txt");
+    printf("LOADED MAZE:\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+LOG: expecting 7 rows and 19 columns
+LOG: beginning to read tiles
+LOG: (0,0) has character '#' type 1
+LOG: (0,1) has character '#' type 1
+LOG: (0,2) has character '#' type 1
+LOG: (0,3) has character '#' type 1
+LOG: (0,4) has character '#' type 1
+LOG: (0,5) has character '#' type 1
+LOG: (0,6) has character '#' type 1
+LOG: (0,7) has character '#' type 1
+LOG: (0,8) has character '#' type 1
+LOG: (0,9) has character '#' type 1
+LOG: (0,10) has character '#' type 1
+LOG: (0,11) has character '#' type 1
+LOG: (0,12) has character '#' type 1
+LOG: (0,13) has character '#' type 1
+LOG: (0,14) has character '#' type 1
+LOG: (0,15) has character '#' type 1
+LOG: (0,16) has character '#' type 1
+LOG: (0,17) has character '#' type 1
+LOG: (0,18) has character '#' type 1
+LOG: finished reading row 0 of tiles
+LOG: (1,0) has character '#' type 1
+LOG: (1,1) has character ' ' type 2
+LOG: (1,2) has character ' ' type 2
+LOG: (1,3) has character ' ' type 2
+LOG: (1,4) has character ' ' type 2
+LOG: (1,5) has character ' ' type 2
+LOG: (1,6) has character ' ' type 2
+LOG: (1,7) has character ' ' type 2
+LOG: (1,8) has character ' ' type 2
+LOG: (1,9) has character ' ' type 2
+LOG: (1,10) has character ' ' type 2
+LOG: (1,11) has character '#' type 1
+LOG: (1,12) has character ' ' type 2
+LOG: (1,13) has character ' ' type 2
+LOG: (1,14) has character ' ' type 2
+LOG: (1,15) has character ' ' type 2
+LOG: (1,16) has character '#' type 1
+LOG: (1,17) has character ' ' type 2
+LOG: (1,18) has character '#' type 1
+LOG: finished reading row 1 of tiles
+LOG: (2,0) has character '#' type 1
+LOG: (2,1) has character ' ' type 2
+LOG: (2,2) has character '#' type 1
+LOG: (2,3) has character '#' type 1
+LOG: (2,4) has character '#' type 1
+LOG: (2,5) has character ' ' type 2
+LOG: (2,6) has character ' ' type 2
+LOG: (2,7) has character '#' type 1
+LOG: (2,8) has character '#' type 1
+LOG: (2,9) has character ' ' type 2
+LOG: (2,10) has character ' ' type 2
+LOG: (2,11) has character ' ' type 2
+LOG: (2,12) has character ' ' type 2
+LOG: (2,13) has character '#' type 1
+LOG: (2,14) has character '#' type 1
+LOG: (2,15) has character ' ' type 2
+LOG: (2,16) has character '#' type 1
+LOG: (2,17) has character ' ' type 2
+LOG: (2,18) has character '#' type 1
+LOG: finished reading row 2 of tiles
+LOG: (3,0) has character '#' type 1
+LOG: (3,1) has character ' ' type 2
+LOG: (3,2) has character ' ' type 2
+LOG: (3,3) has character '#' type 1
+LOG: (3,4) has character '#' type 1
+LOG: (3,5) has character ' ' type 2
+LOG: (3,6) has character ' ' type 2
+LOG: (3,7) has character '#' type 1
+LOG: (3,8) has character ' ' type 2
+LOG: (3,9) has character 'S' type 4
+LOG: setting START at (3,9)
+LOG: (3,10) has character ' ' type 2
+LOG: (3,11) has character '#' type 1
+LOG: (3,12) has character ' ' type 2
+LOG: (3,13) has character ' ' type 2
+LOG: (3,14) has character '#' type 1
+LOG: (3,15) has character ' ' type 2
+LOG: (3,16) has character '#' type 1
+LOG: (3,17) has character ' ' type 2
+LOG: (3,18) has character '#' type 1
+LOG: finished reading row 3 of tiles
+LOG: (4,0) has character '#' type 1
+LOG: (4,1) has character '#' type 1
+LOG: (4,2) has character ' ' type 2
+LOG: (4,3) has character ' ' type 2
+LOG: (4,4) has character '#' type 1
+LOG: (4,5) has character ' ' type 2
+LOG: (4,6) has character ' ' type 2
+LOG: (4,7) has character '#' type 1
+LOG: (4,8) has character '#' type 1
+LOG: (4,9) has character '#' type 1
+LOG: (4,10) has character '#' type 1
+LOG: (4,11) has character '#' type 1
+LOG: (4,12) has character ' ' type 2
+LOG: (4,13) has character ' ' type 2
+LOG: (4,14) has character '#' type 1
+LOG: (4,15) has character ' ' type 2
+LOG: (4,16) has character '#' type 1
+LOG: (4,17) has character ' ' type 2
+LOG: (4,18) has character '#' type 1
+LOG: finished reading row 4 of tiles
+LOG: (5,0) has character '#' type 1
+LOG: (5,1) has character 'E' type 5
+LOG: setting END at (5,1)
+LOG: (5,2) has character ' ' type 2
+LOG: (5,3) has character ' ' type 2
+LOG: (5,4) has character '#' type 1
+LOG: (5,5) has character ' ' type 2
+LOG: (5,6) has character ' ' type 2
+LOG: (5,7) has character ' ' type 2
+LOG: (5,8) has character ' ' type 2
+LOG: (5,9) has character ' ' type 2
+LOG: (5,10) has character ' ' type 2
+LOG: (5,11) has character ' ' type 2
+LOG: (5,12) has character ' ' type 2
+LOG: (5,13) has character ' ' type 2
+LOG: (5,14) has character '#' type 1
+LOG: (5,15) has character ' ' type 2
+LOG: (5,16) has character ' ' type 2
+LOG: (5,17) has character ' ' type 2
+LOG: (5,18) has character '#' type 1
+LOG: finished reading row 5 of tiles
+LOG: (6,0) has character '#' type 1
+LOG: (6,1) has character '#' type 1
+LOG: (6,2) has character '#' type 1
+LOG: (6,3) has character '#' type 1
+LOG: (6,4) has character '#' type 1
+LOG: (6,5) has character '#' type 1
+LOG: (6,6) has character '#' type 1
+LOG: (6,7) has character '#' type 1
+LOG: (6,8) has character '#' type 1
+LOG: (6,9) has character '#' type 1
+LOG: (6,10) has character '#' type 1
+LOG: (6,11) has character '#' type 1
+LOG: (6,12) has character '#' type 1
+LOG: (6,13) has character '#' type 1
+LOG: (6,14) has character '#' type 1
+LOG: (6,15) has character '#' type 1
+LOG: (6,16) has character '#' type 1
+LOG: (6,17) has character '#' type 1
+LOG: (6,18) has character '#' type 1
+LOG: finished reading row 6 of tiles
+LOADED MAZE:
+maze: 7 rows 19 cols
+      (3,9) start
+      (5,1) end
+maze tiles:
+###################
+#          #    # #
+# ###  ##    ## # #
+#  ##  # S #  # # #
+##  #  #####  # # #
+#E  #         #   #
+###################
+LOG: expecting 9 rows and 22 columns
+LOG: beginning to read tiles
+LOG: (0,0) has character '#' type 1
+LOG: (0,1) has character '#' type 1
+LOG: (0,2) has character '#' type 1
+LOG: (0,3) has character '#' type 1
+LOG: (0,4) has character '#' type 1
+LOG: (0,5) has character '#' type 1
+LOG: (0,6) has character '#' type 1
+LOG: (0,7) has character '#' type 1
+LOG: (0,8) has character '#' type 1
+LOG: (0,9) has character '#' type 1
+LOG: (0,10) has character '#' type 1
+LOG: (0,11) has character '#' type 1
+LOG: (0,12) has character '#' type 1
+LOG: (0,13) has character '#' type 1
+LOG: (0,14) has character '#' type 1
+LOG: (0,15) has character '#' type 1
+LOG: (0,16) has character '#' type 1
+LOG: (0,17) has character '#' type 1
+LOG: (0,18) has character '#' type 1
+LOG: (0,19) has character '#' type 1
+LOG: (0,20) has character '#' type 1
+LOG: (0,21) has character '#' type 1
+LOG: finished reading row 0 of tiles
+LOG: (1,0) has character '#' type 1
+LOG: (1,1) has character ' ' type 2
+LOG: (1,2) has character ' ' type 2
+LOG: (1,3) has character ' ' type 2
+LOG: (1,4) has character ' ' type 2
+LOG: (1,5) has character '#' type 1
+LOG: (1,6) has character ' ' type 2
+LOG: (1,7) has character '#' type 1
+LOG: (1,8) has character ' ' type 2
+LOG: (1,9) has character ' ' type 2
+LOG: (1,10) has character ' ' type 2
+LOG: (1,11) has character ' ' type 2
+LOG: (1,12) has character ' ' type 2
+LOG: (1,13) has character ' ' type 2
+LOG: (1,14) has character ' ' type 2
+LOG: (1,15) has character ' ' type 2
+LOG: (1,16) has character ' ' type 2
+LOG: (1,17) has character '#' type 1
+LOG: (1,18) has character ' ' type 2
+LOG: (1,19) has character ' ' type 2
+LOG: (1,20) has character ' ' type 2
+LOG: (1,21) has character '#' type 1
+LOG: finished reading row 1 of tiles
+LOG: (2,0) has character '#' type 1
+LOG: (2,1) has character ' ' type 2
+LOG: (2,2) has character ' ' type 2
+LOG: (2,3) has character ' ' type 2
+LOG: (2,4) has character ' ' type 2
+LOG: (2,5) has character '#' type 1
+LOG: (2,6) has character ' ' type 2
+LOG: (2,7) has character '#' type 1
+LOG: (2,8) has character ' ' type 2
+LOG: (2,9) has character ' ' type 2
+LOG: (2,10) has character 'E' type 5
+LOG: setting END at (2,10)
+LOG: (2,11) has character ' ' type 2
+LOG: (2,12) has character '#' type 1
+LOG: (2,13) has character '#' type 1
+LOG: (2,14) has character '#' type 1
+LOG: (2,15) has character '#' type 1
+LOG: (2,16) has character ' ' type 2
+LOG: (2,17) has character '#' type 1
+LOG: (2,18) has character ' ' type 2
+LOG: (2,19) has character ' ' type 2
+LOG: (2,20) has character ' ' type 2
+LOG: (2,21) has character '#' type 1
+LOG: finished reading row 2 of tiles
+LOG: (3,0) has character '#' type 1
+LOG: (3,1) has character '#' type 1
+LOG: (3,2) has character ' ' type 2
+LOG: (3,3) has character '#' type 1
+LOG: (3,4) has character '#' type 1
+LOG: (3,5) has character '#' type 1
+LOG: (3,6) has character ' ' type 2
+LOG: (3,7) has character '#' type 1
+LOG: (3,8) has character '#' type 1
+LOG: (3,9) has character '#' type 1
+LOG: (3,10) has character '#' type 1
+LOG: (3,11) has character '#' type 1
+LOG: (3,12) has character '#' type 1
+LOG: (3,13) has character ' ' type 2
+LOG: (3,14) has character ' ' type 2
+LOG: (3,15) has character '#' type 1
+LOG: (3,16) has character ' ' type 2
+LOG: (3,17) has character '#' type 1
+LOG: (3,18) has character ' ' type 2
+LOG: (3,19) has character '#' type 1
+LOG: (3,20) has character ' ' type 2
+LOG: (3,21) has character '#' type 1
+LOG: finished reading row 3 of tiles
+LOG: (4,0) has character '#' type 1
+LOG: (4,1) has character ' ' type 2
+LOG: (4,2) has character ' ' type 2
+LOG: (4,3) has character ' ' type 2
+LOG: (4,4) has character ' ' type 2
+LOG: (4,5) has character '#' type 1
+LOG: (4,6) has character ' ' type 2
+LOG: (4,7) has character ' ' type 2
+LOG: (4,8) has character ' ' type 2
+LOG: (4,9) has character ' ' type 2
+LOG: (4,10) has character ' ' type 2
+LOG: (4,11) has character ' ' type 2
+LOG: (4,12) has character '#' type 1
+LOG: (4,13) has character ' ' type 2
+LOG: (4,14) has character ' ' type 2
+LOG: (4,15) has character '#' type 1
+LOG: (4,16) has character ' ' type 2
+LOG: (4,17) has character '#' type 1
+LOG: (4,18) has character ' ' type 2
+LOG: (4,19) has character '#' type 1
+LOG: (4,20) has character ' ' type 2
+LOG: (4,21) has character '#' type 1
+LOG: finished reading row 4 of tiles
+LOG: (5,0) has character '#' type 1
+LOG: (5,1) has character '#' type 1
+LOG: (5,2) has character ' ' type 2
+LOG: (5,3) has character ' ' type 2
+LOG: (5,4) has character '#' type 1
+LOG: (5,5) has character '#' type 1
+LOG: (5,6) has character ' ' type 2
+LOG: (5,7) has character '#' type 1
+LOG: (5,8) has character '#' type 1
+LOG: (5,9) has character ' ' type 2
+LOG: (5,10) has character 'S' type 4
+LOG: setting START at (5,10)
+LOG: (5,11) has character ' ' type 2
+LOG: (5,12) has character '#' type 1
+LOG: (5,13) has character '#' type 1
+LOG: (5,14) has character ' ' type 2
+LOG: (5,15) has character '#' type 1
+LOG: (5,16) has character ' ' type 2
+LOG: (5,17) has character '#' type 1
+LOG: (5,18) has character ' ' type 2
+LOG: (5,19) has character '#' type 1
+LOG: (5,20) has character '#' type 1
+LOG: (5,21) has character '#' type 1
+LOG: finished reading row 5 of tiles
+LOG: (6,0) has character '#' type 1
+LOG: (6,1) has character ' ' type 2
+LOG: (6,2) has character ' ' type 2
+LOG: (6,3) has character '#' type 1
+LOG: (6,4) has character ' ' type 2
+LOG: (6,5) has character ' ' type 2
+LOG: (6,6) has character ' ' type 2
+LOG: (6,7) has character ' ' type 2
+LOG: (6,8) has character '#' type 1
+LOG: (6,9) has character ' ' type 2
+LOG: (6,10) has character ' ' type 2
+LOG: (6,11) has character ' ' type 2
+LOG: (6,12) has character ' ' type 2
+LOG: (6,13) has character ' ' type 2
+LOG: (6,14) has character ' ' type 2
+LOG: (6,15) has character ' ' type 2
+LOG: (6,16) has character ' ' type 2
+LOG: (6,17) has character ' ' type 2
+LOG: (6,18) has character ' ' type 2
+LOG: (6,19) has character ' ' type 2
+LOG: (6,20) has character ' ' type 2
+LOG: (6,21) has character '#' type 1
+LOG: finished reading row 6 of tiles
+LOG: (7,0) has character '#' type 1
+LOG: (7,1) has character ' ' type 2
+LOG: (7,2) has character ' ' type 2
+LOG: (7,3) has character ' ' type 2
+LOG: (7,4) has character ' ' type 2
+LOG: (7,5) has character ' ' type 2
+LOG: (7,6) has character ' ' type 2
+LOG: (7,7) has character ' ' type 2
+LOG: (7,8) has character '#' type 1
+LOG: (7,9) has character '#' type 1
+LOG: (7,10) has character '#' type 1
+LOG: (7,11) has character '#' type 1
+LOG: (7,12) has character '#' type 1
+LOG: (7,13) has character '#' type 1
+LOG: (7,14) has character ' ' type 2
+LOG: (7,15) has character ' ' type 2
+LOG: (7,16) has character ' ' type 2
+LOG: (7,17) has character ' ' type 2
+LOG: (7,18) has character '#' type 1
+LOG: (7,19) has character ' ' type 2
+LOG: (7,20) has character ' ' type 2
+LOG: (7,21) has character '#' type 1
+LOG: finished reading row 7 of tiles
+LOG: (8,0) has character '#' type 1
+LOG: (8,1) has character '#' type 1
+LOG: (8,2) has character '#' type 1
+LOG: (8,3) has character '#' type 1
+LOG: (8,4) has character '#' type 1
+LOG: (8,5) has character '#' type 1
+LOG: (8,6) has character '#' type 1
+LOG: (8,7) has character '#' type 1
+LOG: (8,8) has character '#' type 1
+LOG: (8,9) has character '#' type 1
+LOG: (8,10) has character '#' type 1
+LOG: (8,11) has character '#' type 1
+LOG: (8,12) has character '#' type 1
+LOG: (8,13) has character '#' type 1
+LOG: (8,14) has character '#' type 1
+LOG: (8,15) has character '#' type 1
+LOG: (8,16) has character '#' type 1
+LOG: (8,17) has character '#' type 1
+LOG: (8,18) has character '#' type 1
+LOG: (8,19) has character '#' type 1
+LOG: (8,20) has character '#' type 1
+LOG: (8,21) has character '#' type 1
+LOG: finished reading row 8 of tiles
+LOADED MAZE:
+maze: 9 rows 22 cols
+      (5,10) start
+      (2,10) end
+maze tiles:
+######################
+#    # #         #   #
+#    # #  E #### #   #
+## ### ######  # # # #
+#    #      #  # # # #
+##  ## ## S ## # # ###
+#  #    #            #
+#       ######    #  #
+######################
+#+END_SRC
+
+* maze_from_file_big
+#+TESTY: program='./test_mazesolve_funcs maze_from_file_big'
+#+BEGIN_SRC sh
+IF_TEST("maze_from_file_big") {
+    // Load a large maze from a file
+    LOG_LEVEL = 0;              // no logging for this test
+    maze_t *maze = maze_from_file("data/maze-big-mult1.txt");
+    printf("LOADED MAZE:\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+LOADED MAZE:
+maze: 21 rows 51 cols
+      (1,1) start
+      (19,50) end
+maze tiles:
+###################################################
+#S  #                                     #       #
+### ########### ################# ##### # # ##### #
+# #     #     #       #       #   #   # #   #   # #
+# ##### # ### # ##### # ##### # ### # # ##### ### #
+#     #   # # #     # #   # #   #   # #   #     # #
+# ######### # ####### ### # ##### ### ### ### # # #
+# #         # #                         #   # #   #
+# # ##### ### # ##### ####### ######### ### # #####
+# #   # #     # #   # #       #     #     # # #   #
+# ### # ####### # # ### ####### ### ####### # # # #
+#   #   #     #   #   # #       #           # # # #
+# ##### # ### # ##### # # ######### ######### ### #
+#       #   #   #   #   #               #   #     #
+# # ##########  # # # ##### ########### # # ##### #
+# #   #           # # #   #     #     # # #     # #
+# ### ### ######### # # # # ##### ### # # ##### # #
+#   #     # #     # # # # # #   # # #   # #   #   #
+# # ####### # # ### ### # ### # # # ##### # # #####
+# #           #         #     #   #         #     E
+###################################################
+#+END_SRC
+
+* mazesolve_main1
+Solve maze-medium1.txt without logging turned on.
+
+#+TESTY: program='./mazesolve_main data/maze-medium1.txt'
+#+BEGIN_SRC sh
+maze: 10 rows 8 cols
+      (1,6) start
+      (8,6) end
+maze tiles:
+########
+#     S#
+# # ####
+# #    #
+# ######
+#      #
+###### #
+# ##   #
+# #  #E#
+########
+SOLUTION:
+maze: 10 rows 8 cols
+      (1,6) start
+      (8,6) end
+maze tiles:
+########
+#.....S#
+#.# ####
+#.#    #
+#.######
+#......#
+######.#
+# ##  .#
+# #  #E#
+########
+path length: 17
+ 0: WEST
+ 1: WEST
+ 2: WEST
+ 3: WEST
+ 4: WEST
+ 5: SOUTH
+ 6: SOUTH
+ 7: SOUTH
+ 8: SOUTH
+ 9: EAST
+10: EAST
+11: EAST
+12: EAST
+13: EAST
+14: SOUTH
+15: SOUTH
+16: SOUTH
+#+END_SRC
+
+* mazesolve_main2_logging MULTIPART
+This is a multi-part test that runs the main function with various log
+levels to ensure printing log messages respects the different levels.
+
+** No logging
+Run on maze-small-twopath1.txt with no logging
+
+#+TESTY: program='./mazesolve_main data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+** Log 1
+Run on maze-small-twopath1.txt with level 1 logging.
+
+#+TESTY: program='./mazesolve_main -log 1 data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+** Log 2
+Run on maze-small-twopath1.txt with level 2 logging.
+
+#+TESTY: program='./mazesolve_main -log 2 data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+LOG: BFS initialization complete
+#####:  0
+# 0 #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   1   2
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   3
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2# #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   2   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   2   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   3   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E3#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   3   2
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   3   2
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+** Log 3
+Run on maze-small-twopath1.txt with level 3 logging.
+
+#+TESTY: program='./mazesolve_main -log 3 data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+LOG: BFS initialization complete
+#####:  0
+# 0 #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   1   2
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   3
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2# #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   2   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   2   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   3   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E3#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   3   2
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   3   2
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+LOG: solution START at (1,2)
+LOG: solution path[0] is WEST, set (1,1) to ONPATH
+LOG: solution path[1] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[2] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[3] is EAST, set (3,2) to ONPATH
+LOG: solution END at (3,2)
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+** Log 4
+Run on maze-small-twopath1.txt with level 4 logging.
+
+#+TESTY: program='./mazesolve_main -log 4 data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+LOG: BFS initialization complete
+#####:  0
+# 0 #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   1   2
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: Found tile at (1,1) with len 1 path: W
+LOG: Found tile at (1,3) with len 1 path: E
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   3
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: Found tile at (2,1) with len 2 path: WS
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2# #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   2   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: Found tile at (2,3) with len 2 path: ES
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   2   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: Found tile at (3,1) with len 3 path: WSS
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   3   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: Found tile at (3,3) with len 3 path: ESS
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E3#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: Found tile at (3,2) with len 4 path: WSSE
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   3   2
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   3   2
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+LOG: solution START at (1,2)
+LOG: solution path[0] is WEST, set (1,1) to ONPATH
+LOG: solution path[1] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[2] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[3] is EAST, set (3,2) to ONPATH
+LOG: solution END at (3,2)
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+** Log 5
+Run on maze-small-twopath1.txt with level 5 logging.
+
+#+TESTY: program='./mazesolve_main -log 5 data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+LOG: BFS initialization complete
+#####:  0
+# 0 #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   1   2
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Found tile at (1,1) with len 1 path: W
+LOG: Found tile at (1,3) with len 1 path: E
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   3
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 2 path: WS
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping FOUND tile at (1,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2# #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   2   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Found tile at (2,3) with len 2 path: ES
+LOG: Skipping FOUND tile at (1,2)
+LOG: Skipping BLOCKED tile at (1,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   2   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 3 path: WSS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   3   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: Skipping FOUND tile at (1,3)
+LOG: Found tile at (3,3) with len 3 path: ESS
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E3#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Skipping BLOCKED tile at (4,1)
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Found tile at (3,2) with len 4 path: WSSE
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   3   2
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: Skipping FOUND tile at (2,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping FOUND tile at (3,2)
+LOG: Skipping BLOCKED tile at (3,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   3   2
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Skipping FOUND tile at (3,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+LOG: solution START at (1,2)
+LOG: solution path[0] is WEST, set (1,1) to ONPATH
+LOG: solution path[1] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[2] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[3] is EAST, set (3,2) to ONPATH
+LOG: solution END at (3,2)
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+** Log 6
+Run on maze-small-twopath1.txt with level 6 logging.
+
+#+TESTY: program='./mazesolve_main -log 6 data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+LOG: expecting 5 rows and 5 columns
+LOG: beginning to read tiles
+LOG: (0,0) has character '#' type 1
+LOG: (0,1) has character '#' type 1
+LOG: (0,2) has character '#' type 1
+LOG: (0,3) has character '#' type 1
+LOG: (0,4) has character '#' type 1
+LOG: finished reading row 0 of tiles
+LOG: (1,0) has character '#' type 1
+LOG: (1,1) has character ' ' type 2
+LOG: (1,2) has character 'S' type 4
+LOG: setting START at (1,2)
+LOG: (1,3) has character ' ' type 2
+LOG: (1,4) has character '#' type 1
+LOG: finished reading row 1 of tiles
+LOG: (2,0) has character '#' type 1
+LOG: (2,1) has character ' ' type 2
+LOG: (2,2) has character '#' type 1
+LOG: (2,3) has character ' ' type 2
+LOG: (2,4) has character '#' type 1
+LOG: finished reading row 2 of tiles
+LOG: (3,0) has character '#' type 1
+LOG: (3,1) has character ' ' type 2
+LOG: (3,2) has character 'E' type 5
+LOG: setting END at (3,2)
+LOG: (3,3) has character ' ' type 2
+LOG: (3,4) has character '#' type 1
+LOG: finished reading row 3 of tiles
+LOG: (4,0) has character '#' type 1
+LOG: (4,1) has character '#' type 1
+LOG: (4,2) has character '#' type 1
+LOG: (4,3) has character '#' type 1
+LOG: (4,4) has character '#' type 1
+LOG: finished reading row 4 of tiles
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+LOG: BFS initialization complete
+#####:  0
+# 0 #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   1   2
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Found tile at (1,1) with len 1 path: W
+LOG: Found tile at (1,3) with len 1 path: E
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   3
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 2 path: WS
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping FOUND tile at (1,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2# #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   2   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Found tile at (2,3) with len 2 path: ES
+LOG: Skipping FOUND tile at (1,2)
+LOG: Skipping BLOCKED tile at (1,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   2   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 3 path: WSS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   3   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: Skipping FOUND tile at (1,3)
+LOG: Found tile at (3,3) with len 3 path: ESS
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E3#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Skipping BLOCKED tile at (4,1)
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Found tile at (3,2) with len 4 path: WSSE
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   3   2
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: Skipping FOUND tile at (2,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping FOUND tile at (3,2)
+LOG: Skipping BLOCKED tile at (3,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   3   2
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Skipping FOUND tile at (3,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+LOG: solution START at (1,2)
+LOG: solution path[0] is WEST, set (1,1) to ONPATH
+LOG: solution path[1] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[2] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[3] is EAST, set (3,2) to ONPATH
+LOG: solution END at (3,2)
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+** Log All
+Run on maze-small-twopath1.txt with level 10 logging which enables all
+log messages.
+
+#+TESTY: program='./mazesolve_main -log 10 data/maze-small-twopath1.txt'
+#+BEGIN_SRC sh
+LOG: expecting 5 rows and 5 columns
+LOG: beginning to read tiles
+LOG: (0,0) has character '#' type 1
+LOG: (0,1) has character '#' type 1
+LOG: (0,2) has character '#' type 1
+LOG: (0,3) has character '#' type 1
+LOG: (0,4) has character '#' type 1
+LOG: finished reading row 0 of tiles
+LOG: (1,0) has character '#' type 1
+LOG: (1,1) has character ' ' type 2
+LOG: (1,2) has character 'S' type 4
+LOG: setting START at (1,2)
+LOG: (1,3) has character ' ' type 2
+LOG: (1,4) has character '#' type 1
+LOG: finished reading row 1 of tiles
+LOG: (2,0) has character '#' type 1
+LOG: (2,1) has character ' ' type 2
+LOG: (2,2) has character '#' type 1
+LOG: (2,3) has character ' ' type 2
+LOG: (2,4) has character '#' type 1
+LOG: finished reading row 2 of tiles
+LOG: (3,0) has character '#' type 1
+LOG: (3,1) has character ' ' type 2
+LOG: (3,2) has character 'E' type 5
+LOG: setting END at (3,2)
+LOG: (3,3) has character ' ' type 2
+LOG: (3,4) has character '#' type 1
+LOG: finished reading row 3 of tiles
+LOG: (4,0) has character '#' type 1
+LOG: (4,1) has character '#' type 1
+LOG: (4,2) has character '#' type 1
+LOG: (4,3) has character '#' type 1
+LOG: (4,4) has character '#' type 1
+LOG: finished reading row 4 of tiles
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+LOG: BFS initialization complete
+#####:  0
+# 0 #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   1   2
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Found tile at (1,1) with len 1 path: W
+LOG: Found tile at (1,3) with len 1 path: E
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   3
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 2 path: WS
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping FOUND tile at (1,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2# #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   2   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Found tile at (2,3) with len 2 path: ES
+LOG: Skipping FOUND tile at (1,2)
+LOG: Skipping BLOCKED tile at (1,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   2   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 3 path: WSS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   3   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: Skipping FOUND tile at (1,3)
+LOG: Found tile at (3,3) with len 3 path: ESS
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E3#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Skipping BLOCKED tile at (4,1)
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Found tile at (3,2) with len 4 path: WSSE
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   3   2
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: Skipping FOUND tile at (2,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping FOUND tile at (3,2)
+LOG: Skipping BLOCKED tile at (3,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   3   2
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Skipping FOUND tile at (3,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+LOG: solution START at (1,2)
+LOG: solution path[0] is WEST, set (1,1) to ONPATH
+LOG: solution path[1] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[2] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[3] is EAST, set (3,2) to ONPATH
+LOG: solution END at (3,2)
+SOLUTION:
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+path length: 4
+ 0: WEST
+ 1: SOUTH
+ 2: SOUTH
+ 3: EAST
+#+END_SRC
+
+* mazesolve_main3
+Solve maze-small-threepath1.txt with some logging enabled.
+
+#+TESTY: program='./mazesolve_main -log 4 data/maze-small-threepath1.txt'
+#+BEGIN_SRC sh
+maze: 6 rows 9 cols
+      (2,4) start
+      (3,7) end
+maze tiles:
+#########
+#    #  #
+# ##S  ##
+#  # ##E#
+#       #
+#########
+LOG: BFS initialization complete
+#########:  0
+#    #  #:  1
+# ##0  ##:  2
+#  # ##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 1
+NN ROW COL
+ 0   2   4
+LOG: BFS STEP 1
+LOG: processing neighbors of (2,4)
+LOG: Found tile at (1,4) with len 1 path: N
+LOG: Found tile at (3,4) with len 1 path: S
+LOG: Found tile at (2,5) with len 1 path: E
+LOG: maze state after BFS step
+#########:  0
+#   1#  #:  1
+# ##01 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   1   4
+ 1   3   4
+ 2   2   5
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,4)
+LOG: Found tile at (1,3) with len 2 path: NW
+LOG: maze state after BFS step
+#########:  0
+#  21#  #:  1
+# ##01 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   3   4
+ 1   2   5
+ 2   1   3
+LOG: BFS STEP 3
+LOG: processing neighbors of (3,4)
+LOG: Found tile at (4,4) with len 2 path: SS
+LOG: maze state after BFS step
+#########:  0
+#  21#  #:  1
+# ##01 ##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   2   5
+ 1   1   3
+ 2   4   4
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,5)
+LOG: Found tile at (2,6) with len 2 path: EE
+LOG: maze state after BFS step
+#########:  0
+#  21#  #:  1
+# ##012##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   1   3
+ 1   4   4
+ 2   2   6
+LOG: BFS STEP 5
+LOG: processing neighbors of (1,3)
+LOG: Found tile at (1,2) with len 3 path: NWW
+LOG: maze state after BFS step
+#########:  0
+# 321#  #:  1
+# ##012##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   4   4
+ 1   2   6
+ 2   1   2
+LOG: BFS STEP 6
+LOG: processing neighbors of (4,4)
+LOG: Found tile at (4,3) with len 3 path: SSW
+LOG: Found tile at (4,5) with len 3 path: SSE
+LOG: maze state after BFS step
+#########:  0
+# 321#  #:  1
+# ##012##:  2
+#  #1##E#:  3
+#  323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   2   6
+ 1   1   2
+ 2   4   3
+ 3   4   5
+LOG: BFS STEP 7
+LOG: processing neighbors of (2,6)
+LOG: Found tile at (1,6) with len 3 path: EEN
+LOG: maze state after BFS step
+#########:  0
+# 321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+#  323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   2
+ 1   4   3
+ 2   4   5
+ 3   1   6
+LOG: BFS STEP 8
+LOG: processing neighbors of (1,2)
+LOG: Found tile at (1,1) with len 4 path: NWWW
+LOG: maze state after BFS step
+#########:  0
+#4321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+#  323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   4   3
+ 1   4   5
+ 2   1   6
+ 3   1   1
+LOG: BFS STEP 9
+LOG: processing neighbors of (4,3)
+LOG: Found tile at (4,2) with len 4 path: SSWW
+LOG: maze state after BFS step
+#########:  0
+#4321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+# 4323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   4   5
+ 1   1   6
+ 2   1   1
+ 3   4   2
+LOG: BFS STEP 10
+LOG: processing neighbors of (4,5)
+LOG: Found tile at (4,6) with len 4 path: SSEE
+LOG: maze state after BFS step
+#########:  0
+#4321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+# 43234 #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   6
+ 1   1   1
+ 2   4   2
+ 3   4   6
+LOG: BFS STEP 11
+LOG: processing neighbors of (1,6)
+LOG: Found tile at (1,7) with len 4 path: EENE
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+# ##012##:  2
+#  #1##E#:  3
+# 43234 #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   1
+ 1   4   2
+ 2   4   6
+ 3   1   7
+LOG: BFS STEP 12
+LOG: processing neighbors of (1,1)
+LOG: Found tile at (2,1) with len 5 path: NWWWS
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#  #1##E#:  3
+# 43234 #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   4   2
+ 1   4   6
+ 2   1   7
+ 3   2   1
+LOG: BFS STEP 13
+LOG: processing neighbors of (4,2)
+LOG: Found tile at (3,2) with len 5 path: SSWWN
+LOG: Found tile at (4,1) with len 5 path: SSWWW
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+# 5#1##E#:  3
+#543234 #:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   4   6
+ 1   1   7
+ 2   2   1
+ 3   3   2
+ 4   4   1
+LOG: BFS STEP 14
+LOG: processing neighbors of (4,6)
+LOG: Found tile at (4,7) with len 5 path: SSEEE
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+# 5#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   1   7
+ 1   2   1
+ 2   3   2
+ 3   4   1
+ 4   4   7
+LOG: BFS STEP 15
+LOG: processing neighbors of (1,7)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+# 5#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   2   1
+ 1   3   2
+ 2   4   1
+ 3   4   7
+LOG: BFS STEP 16
+LOG: processing neighbors of (2,1)
+LOG: Found tile at (3,1) with len 6 path: NWWWSS
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   3   2
+ 1   4   1
+ 2   4   7
+ 3   3   1
+LOG: BFS STEP 17
+LOG: processing neighbors of (3,2)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   4   1
+ 1   4   7
+ 2   3   1
+LOG: BFS STEP 18
+LOG: processing neighbors of (4,1)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 2
+NN ROW COL
+ 0   4   7
+ 1   3   1
+LOG: BFS STEP 19
+LOG: processing neighbors of (4,7)
+LOG: Found tile at (3,7) with len 6 path: SSEEEN
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##6#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   7
+LOG: BFS STEP 20
+LOG: processing neighbors of (3,1)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##6#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 1
+NN ROW COL
+ 0   3   7
+LOG: BFS STEP 21
+LOG: processing neighbors of (3,7)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##6#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 0
+NN ROW COL
+LOG: solution START at (2,4)
+LOG: solution path[0] is SOUTH, set (3,4) to ONPATH
+LOG: solution path[1] is SOUTH, set (4,4) to ONPATH
+LOG: solution path[2] is EAST, set (4,5) to ONPATH
+LOG: solution path[3] is EAST, set (4,6) to ONPATH
+LOG: solution path[4] is EAST, set (4,7) to ONPATH
+LOG: solution path[5] is NORTH, set (3,7) to ONPATH
+LOG: solution END at (3,7)
+SOLUTION:
+maze: 6 rows 9 cols
+      (2,4) start
+      (3,7) end
+maze tiles:
+#########
+#    #  #
+# ##S  ##
+#  #.##E#
+#   ....#
+#########
+path length: 6
+ 0: SOUTH
+ 1: SOUTH
+ 2: EAST
+ 3: EAST
+ 4: EAST
+ 5: NORTH
+#+END_SRC
+
+* mazesolve_main4_special MULTIPART
+Runs mazesolve_main on two special cases.
+
+** Missing File
+Run the main program on a missing file to ensure it detects the
+missing file and bails gracefully. The program should return exit code
+1 from its main() function in this case.
+
+#+TESTY: program='./mazesolve_main data/no-such-file.txt'
+#+TESTY: exitcode_expect=1
+#+BEGIN_SRC sh
+ERROR: could not open file data/no-such-file.txt
+Could not load maze file. Exiting with error code 1
+#+END_SRC
+
+** Unreachable Ending
+Attempt to solve the maze-unreachable1.txt which does not have a path
+from Start to End. Checks that the output is correct in this case.
+
+#+TESTY: program='./mazesolve_main -log 4 data/maze-unreachable1.txt'
+#+BEGIN_SRC sh
+maze: 10 rows 8 cols
+      (1,6) start
+      (8,1) end
+maze tiles:
+########
+#     S#
+# # ####
+# #    #
+# ######
+#      #
+###### #
+# ##   #
+#E#  # #
+########
+LOG: BFS initialization complete
+########:  0
+#     0#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   6
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,6)
+LOG: Found tile at (1,5) with len 1 path: W
+LOG: maze state after BFS step
+########:  0
+#    10#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   5
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,5)
+LOG: Found tile at (1,4) with len 2 path: WW
+LOG: maze state after BFS step
+########:  0
+#   210#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   4
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,4)
+LOG: Found tile at (1,3) with len 3 path: WWW
+LOG: maze state after BFS step
+########:  0
+#  3210#:  1
+# # ####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   1   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (1,3)
+LOG: Found tile at (2,3) with len 4 path: WWWS
+LOG: Found tile at (1,2) with len 4 path: WWWW
+LOG: maze state after BFS step
+########:  0
+# 43210#:  1
+# #4####:  2
+# #    #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   1   2
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: Found tile at (3,3) with len 5 path: WWWSS
+LOG: maze state after BFS step
+########:  0
+# 43210#:  1
+# #4####:  2
+# #5   #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   1   2
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (1,2)
+LOG: Found tile at (1,1) with len 5 path: WWWWW
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+# #4####:  2
+# #5   #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   1   1
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: Found tile at (3,4) with len 6 path: WWWSSE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+# #4####:  2
+# #56  #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   3   4
+LOG: BFS STEP 8
+LOG: processing neighbors of (1,1)
+LOG: Found tile at (2,1) with len 6 path: WWWWWS
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+# #56  #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   4
+ 1   2   1
+LOG: BFS STEP 9
+LOG: processing neighbors of (3,4)
+LOG: Found tile at (3,5) with len 7 path: WWWSSEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+# #567 #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   3   5
+LOG: BFS STEP 10
+LOG: processing neighbors of (2,1)
+LOG: Found tile at (3,1) with len 7 path: WWWWWSS
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#567 #:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   5
+ 1   3   1
+LOG: BFS STEP 11
+LOG: processing neighbors of (3,5)
+LOG: Found tile at (3,6) with len 8 path: WWWSSEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+# ######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   6
+LOG: BFS STEP 12
+LOG: processing neighbors of (3,1)
+LOG: Found tile at (4,1) with len 8 path: WWWWWSSS
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   3   6
+ 1   4   1
+LOG: BFS STEP 13
+LOG: processing neighbors of (3,6)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#      #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   4   1
+LOG: BFS STEP 14
+LOG: processing neighbors of (4,1)
+LOG: Found tile at (5,1) with len 9 path: WWWWWSSSS
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9     #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   1
+LOG: BFS STEP 15
+LOG: processing neighbors of (5,1)
+LOG: Found tile at (5,2) with len 10 path: WWWWWSSSSE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a    #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   2
+LOG: BFS STEP 16
+LOG: processing neighbors of (5,2)
+LOG: Found tile at (5,3) with len 11 path: WWWWWSSSSEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1   #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   3
+LOG: BFS STEP 17
+LOG: processing neighbors of (5,3)
+LOG: Found tile at (5,4) with len 12 path: WWWWWSSSSEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a12  #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   4
+LOG: BFS STEP 18
+LOG: processing neighbors of (5,4)
+LOG: Found tile at (5,5) with len 13 path: WWWWWSSSSEEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a123 #:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   5
+LOG: BFS STEP 19
+LOG: processing neighbors of (5,5)
+LOG: Found tile at (5,6) with len 14 path: WWWWWSSSSEEEEE
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+###### #:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   5   6
+LOG: BFS STEP 20
+LOG: processing neighbors of (5,6)
+LOG: Found tile at (6,6) with len 15 path: WWWWWSSSSEEEEES
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##   #:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   6   6
+LOG: BFS STEP 21
+LOG: processing neighbors of (6,6)
+LOG: Found tile at (7,6) with len 16 path: WWWWWSSSSEEEEESS
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##  6#:  7
+#E#  # #:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   7   6
+LOG: BFS STEP 22
+LOG: processing neighbors of (7,6)
+LOG: Found tile at (8,6) with len 17 path: WWWWWSSSSEEEEESSS
+LOG: Found tile at (7,5) with len 17 path: WWWWWSSSSEEEEESSW
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ## 76#:  7
+#E#  #7#:  8
+########:  9
+01234567
+0       
+queue count: 2
+NN ROW COL
+ 0   8   6
+ 1   7   5
+LOG: BFS STEP 23
+LOG: processing neighbors of (8,6)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ## 76#:  7
+#E#  #7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   7   5
+LOG: BFS STEP 24
+LOG: processing neighbors of (7,5)
+LOG: Found tile at (7,4) with len 18 path: WWWWWSSSSEEEEESSWW
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+#E#  #7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   7   4
+LOG: BFS STEP 25
+LOG: processing neighbors of (7,4)
+LOG: Found tile at (8,4) with len 19 path: WWWWWSSSSEEEEESSWWS
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+#E# 9#7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   8   4
+LOG: BFS STEP 26
+LOG: processing neighbors of (8,4)
+LOG: Found tile at (8,3) with len 20 path: WWWWWSSSSEEEEESSWWSW
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+#E#b9#7#:  8
+########:  9
+01234567
+0       
+queue count: 1
+NN ROW COL
+ 0   8   3
+LOG: BFS STEP 27
+LOG: processing neighbors of (8,3)
+LOG: maze state after BFS step
+########:  0
+#543210#:  1
+#6#4####:  2
+#7#5678#:  3
+#8######:  4
+#9a1234#:  5
+######5#:  6
+# ##876#:  7
+#E#b9#7#:  8
+########:  9
+01234567
+0       
+queue count: 0
+NN ROW COL
+NO SOLUTION FOUND
+#+END_SRC
+
+* mazesolve_main5 MULTIPART
+
+Run on two larger mazes with minimal logging.
+
+** data/maze-big-single1.txt
+#+TESTY: program='./mazesolve_main -log 0 data/maze-big-single1.txt'
+#+BEGIN_SRC sh
+maze: 21 rows 51 cols
+      (1,1) start
+      (19,50) end
+maze tiles:
+###################################################
+#S  #                           #         #       #
+### ########### ################# ##### # # ##### #
+# #     #     #       #       #   #   # #   #   # #
+# ##### # ### # ##### # ##### # ### # # ##### ### #
+#     #   # # #     # #   # #   #   # #   #     # #
+# ######### # ####### ### # ##### ### ### ### # # #
+# #         # #         #         #     #   # #   #
+# # ##### ### # ##### ####### ######### ### # #####
+# #   # #     # #   # #       #     #     # # #   #
+# ### # ####### # # ### ####### ### ####### # # # #
+#   #   #     #   #   # #       #           # # # #
+# ##### # ### # ##### # # ################### ### #
+# #     #   #   #   #   #               #   #     #
+# # ############# # # ##### ########### # # ##### #
+# #   #           # # #   #     #     # # #     # #
+# ### ### ######### # # # # ##### ### # # ##### # #
+#   #     # #     # # # # # #   # # #   # #   #   #
+# # ####### # # ### ### # ### # # # ##### # # #####
+# #           #         #     #   #         #     E
+###################################################
+SOLUTION:
+maze: 21 rows 51 cols
+      (1,1) start
+      (19,50) end
+maze tiles:
+###################################################
+#S..#                           #      ...#.......#
+###.########### ################# #####.#.#.#####.#
+# #.....#.....#       #       #   #   #.#...#   #.#
+# #####.#.###.# ##### # ##### # ### # #.##### ###.#
+#     #...# #.#     # #   # #   #   # #...#  ...#.#
+# ######### #.####### ### # ##### ### ###.###.#.#.#
+# #.......  #.#         #         #     #...#.#...#
+# #.#####.###.# ##### ####### ######### ###.#.#####
+# #...# #.....# #   # #       #.....#     #.#.#   #
+# ###.# ####### # # ### #######.###.#######.#.# # #
+#   #...#     #   #   # #.......#  .........#.# # #
+# #####.# ### # ##### # #.###################.### #
+# #.....#   #   #...#   #...............#...#.....#
+# #.#############.#.# ##### ###########.#.#.#####.#
+# #...#  .........#.# #...#     #.....#.#.#.....#.#
+# ###.###.#########.# #.#.# #####.###.#.#.#####.#.#
+#   #.....# #     #.# #.#.# #...#.# #...#.#...#...#
+# # ####### # # ###.###.#.###.#.#.# #####.#.#.#####
+# #           #    .....#.....#...#      ...#.....E
+###################################################
+path length: 247
+ 0: EAST
+ 1: EAST
+ 2: SOUTH
+ 3: SOUTH
+ 4: EAST
+ 5: EAST
+ 6: EAST
+ 7: EAST
+ 8: SOUTH
+ 9: SOUTH
+10: EAST
+11: EAST
+12: NORTH
+13: NORTH
+14: EAST
+15: EAST
+16: EAST
+17: EAST
+18: SOUTH
+19: SOUTH
+20: SOUTH
+21: SOUTH
+22: SOUTH
+23: SOUTH
+24: WEST
+25: WEST
+26: WEST
+27: WEST
+28: NORTH
+29: NORTH
+30: WEST
+31: WEST
+32: WEST
+33: WEST
+34: WEST
+35: WEST
+36: SOUTH
+37: SOUTH
+38: EAST
+39: EAST
+40: SOUTH
+41: SOUTH
+42: EAST
+43: EAST
+44: SOUTH
+45: SOUTH
+46: WEST
+47: WEST
+48: WEST
+49: WEST
+50: SOUTH
+51: SOUTH
+52: EAST
+53: EAST
+54: SOUTH
+55: SOUTH
+56: EAST
+57: EAST
+58: EAST
+59: EAST
+60: NORTH
+61: NORTH
+62: EAST
+63: EAST
+64: EAST
+65: EAST
+66: EAST
+67: EAST
+68: EAST
+69: EAST
+70: NORTH
+71: NORTH
+72: EAST
+73: EAST
+74: SOUTH
+75: SOUTH
+76: SOUTH
+77: SOUTH
+78: SOUTH
+79: SOUTH
+80: EAST
+81: EAST
+82: EAST
+83: EAST
+84: NORTH
+85: NORTH
+86: NORTH
+87: NORTH
+88: EAST
+89: EAST
+90: SOUTH
+91: SOUTH
+92: SOUTH
+93: SOUTH
+94: EAST
+95: EAST
+96: EAST
+97: EAST
+98: NORTH
+99: NORTH
+100: EAST
+101: EAST
+102: SOUTH
+103: SOUTH
+104: EAST
+105: EAST
+106: NORTH
+107: NORTH
+108: NORTH
+109: NORTH
+110: EAST
+111: EAST
+112: EAST
+113: EAST
+114: SOUTH
+115: SOUTH
+116: EAST
+117: EAST
+118: NORTH
+119: NORTH
+120: NORTH
+121: NORTH
+122: WEST
+123: WEST
+124: WEST
+125: WEST
+126: WEST
+127: WEST
+128: WEST
+129: WEST
+130: WEST
+131: WEST
+132: WEST
+133: WEST
+134: WEST
+135: WEST
+136: NORTH
+137: NORTH
+138: EAST
+139: EAST
+140: EAST
+141: EAST
+142: EAST
+143: EAST
+144: NORTH
+145: NORTH
+146: EAST
+147: EAST
+148: EAST
+149: EAST
+150: SOUTH
+151: SOUTH
+152: EAST
+153: EAST
+154: EAST
+155: EAST
+156: EAST
+157: EAST
+158: EAST
+159: EAST
+160: NORTH
+161: NORTH
+162: NORTH
+163: NORTH
+164: WEST
+165: WEST
+166: NORTH
+167: NORTH
+168: WEST
+169: WEST
+170: NORTH
+171: NORTH
+172: NORTH
+173: NORTH
+174: EAST
+175: EAST
+176: SOUTH
+177: SOUTH
+178: EAST
+179: EAST
+180: NORTH
+181: NORTH
+182: EAST
+183: EAST
+184: EAST
+185: EAST
+186: EAST
+187: EAST
+188: SOUTH
+189: SOUTH
+190: SOUTH
+191: SOUTH
+192: SOUTH
+193: SOUTH
+194: WEST
+195: WEST
+196: NORTH
+197: NORTH
+198: WEST
+199: WEST
+200: SOUTH
+201: SOUTH
+202: SOUTH
+203: SOUTH
+204: SOUTH
+205: SOUTH
+206: SOUTH
+207: SOUTH
+208: EAST
+209: EAST
+210: EAST
+211: EAST
+212: SOUTH
+213: SOUTH
+214: SOUTH
+215: SOUTH
+216: WEST
+217: WEST
+218: NORTH
+219: NORTH
+220: WEST
+221: WEST
+222: WEST
+223: WEST
+224: NORTH
+225: NORTH
+226: WEST
+227: WEST
+228: SOUTH
+229: SOUTH
+230: SOUTH
+231: SOUTH
+232: SOUTH
+233: SOUTH
+234: EAST
+235: EAST
+236: NORTH
+237: NORTH
+238: EAST
+239: EAST
+240: SOUTH
+241: SOUTH
+242: EAST
+243: EAST
+244: EAST
+245: EAST
+246: EAST
+#+END_SRC
+
+** data/maze-big-mult1.txt
+#+TESTY: program='./mazesolve_main -log 0 data/maze-big-mult1.txt'
+#+BEGIN_SRC sh
+maze: 21 rows 51 cols
+      (1,1) start
+      (19,50) end
+maze tiles:
+###################################################
+#S  #                                     #       #
+### ########### ################# ##### # # ##### #
+# #     #     #       #       #   #   # #   #   # #
+# ##### # ### # ##### # ##### # ### # # ##### ### #
+#     #   # # #     # #   # #   #   # #   #     # #
+# ######### # ####### ### # ##### ### ### ### # # #
+# #         # #                         #   # #   #
+# # ##### ### # ##### ####### ######### ### # #####
+# #   # #     # #   # #       #     #     # # #   #
+# ### # ####### # # ### ####### ### ####### # # # #
+#   #   #     #   #   # #       #           # # # #
+# ##### # ### # ##### # # ######### ######### ### #
+#       #   #   #   #   #               #   #     #
+# # ##########  # # # ##### ########### # # ##### #
+# #   #           # # #   #     #     # # #     # #
+# ### ### ######### # # # # ##### ### # # ##### # #
+#   #     # #     # # # # # #   # # #   # #   #   #
+# # ####### # # ### ### # ### # # # ##### # # #####
+# #           #         #     #   #         #     E
+###################################################
+SOLUTION:
+maze: 21 rows 51 cols
+      (1,1) start
+      (19,50) end
+maze tiles:
+###################################################
+#S..#                            .........#.......#
+###.########### #################.##### #.#.#####.#
+# #.....#.....#       #.......#...#   # #...#   #.#
+# #####.#.###.# ##### #.#####.#.### # # ##### ###.#
+#     #...# #.#     # #...# #...#   # #   #  ...#.#
+# ######### #.####### ###.# ##### ### ### ###.#.#.#
+# #.......  #.#...........              #   #.#...#
+# #.#####.###.#.##### ####### ######### ### #.#####
+# #...# #.....#.#   # #       #     #     # #.#   #
+# ###.# #######.# # ### ####### ### ####### #.# # #
+#   #...#     #.  #   # #       #           #.# # #
+# #####.# ### #.##### # # ######### #########.### #
+#  .....#   # ..#   #   #               #...#.....#
+# #.##########. # # # ##### ########### #.#.#####.#
+# #...#  ......   # # #   #     #     # #.#.....#.#
+# ###.###.######### # # # # ##### ### # #.#####.#.#
+#   #.....# #     # # # # # #   # # #   #.#...#...#
+# # ####### # # ### ### # ### # # # #####.#.#.#####
+# #           #         #     #   #      ...#.....E
+###################################################
+path length: 187
+ 0: EAST
+ 1: EAST
+ 2: SOUTH
+ 3: SOUTH
+ 4: EAST
+ 5: EAST
+ 6: EAST
+ 7: EAST
+ 8: SOUTH
+ 9: SOUTH
+10: EAST
+11: EAST
+12: NORTH
+13: NORTH
+14: EAST
+15: EAST
+16: EAST
+17: EAST
+18: SOUTH
+19: SOUTH
+20: SOUTH
+21: SOUTH
+22: SOUTH
+23: SOUTH
+24: WEST
+25: WEST
+26: WEST
+27: WEST
+28: NORTH
+29: NORTH
+30: WEST
+31: WEST
+32: WEST
+33: WEST
+34: WEST
+35: WEST
+36: SOUTH
+37: SOUTH
+38: EAST
+39: EAST
+40: SOUTH
+41: SOUTH
+42: EAST
+43: EAST
+44: SOUTH
+45: SOUTH
+46: WEST
+47: WEST
+48: WEST
+49: WEST
+50: SOUTH
+51: SOUTH
+52: EAST
+53: EAST
+54: SOUTH
+55: SOUTH
+56: EAST
+57: EAST
+58: EAST
+59: EAST
+60: NORTH
+61: NORTH
+62: EAST
+63: EAST
+64: EAST
+65: EAST
+66: EAST
+67: NORTH
+68: NORTH
+69: EAST
+70: NORTH
+71: NORTH
+72: NORTH
+73: NORTH
+74: NORTH
+75: NORTH
+76: EAST
+77: EAST
+78: EAST
+79: EAST
+80: EAST
+81: EAST
+82: EAST
+83: EAST
+84: EAST
+85: EAST
+86: NORTH
+87: NORTH
+88: WEST
+89: WEST
+90: NORTH
+91: NORTH
+92: EAST
+93: EAST
+94: EAST
+95: EAST
+96: EAST
+97: EAST
+98: SOUTH
+99: SOUTH
+100: EAST
+101: EAST
+102: NORTH
+103: NORTH
+104: EAST
+105: EAST
+106: NORTH
+107: NORTH
+108: EAST
+109: EAST
+110: EAST
+111: EAST
+112: EAST
+113: EAST
+114: EAST
+115: EAST
+116: SOUTH
+117: SOUTH
+118: EAST
+119: EAST
+120: NORTH
+121: NORTH
+122: EAST
+123: EAST
+124: EAST
+125: EAST
+126: EAST
+127: EAST
+128: SOUTH
+129: SOUTH
+130: SOUTH
+131: SOUTH
+132: SOUTH
+133: SOUTH
+134: WEST
+135: WEST
+136: NORTH
+137: NORTH
+138: WEST
+139: WEST
+140: SOUTH
+141: SOUTH
+142: SOUTH
+143: SOUTH
+144: SOUTH
+145: SOUTH
+146: SOUTH
+147: SOUTH
+148: EAST
+149: EAST
+150: EAST
+151: EAST
+152: SOUTH
+153: SOUTH
+154: SOUTH
+155: SOUTH
+156: WEST
+157: WEST
+158: NORTH
+159: NORTH
+160: WEST
+161: WEST
+162: WEST
+163: WEST
+164: NORTH
+165: NORTH
+166: WEST
+167: WEST
+168: SOUTH
+169: SOUTH
+170: SOUTH
+171: SOUTH
+172: SOUTH
+173: SOUTH
+174: EAST
+175: EAST
+176: NORTH
+177: NORTH
+178: EAST
+179: EAST
+180: SOUTH
+181: SOUTH
+182: EAST
+183: EAST
+184: EAST
+185: EAST
+186: EAST
+#+END_SRC
+

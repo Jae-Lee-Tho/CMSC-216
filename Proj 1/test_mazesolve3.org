@@ -1,0 +1,2939 @@
+#+TITLE: Problem 3 BFS Function Tests
+#+TESTY: PREFIX="prob3"
+#+TESTY: USE_VALGRIND=1
+
+# Fri Feb 14 10:43:47 AM EST 2025 Update to maze_bfs_step2; see
+# https://piazza.com/class/m69s0i6labk3eb/post/104
+
+# Wed Feb 12 09:02:36 PM EST 2025 Update to fix typo in expected LOG
+# message for BFS steps
+
+* maze_bfs_init1
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_init1'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_init1") {
+    // Initialize a maze for BFS search and print the resulting
+    // state. Logging is enabled so the initialization function will
+    // produce some output.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    LOG_LEVEL = LOG_ALL;
+    printf("Maze BEFORE bfs_init()\n");
+    maze_print_state(maze);
+    maze_bfs_init(maze);
+    printf("Maze AFTER bfs_init()\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE bfs_init()
+################:  0
+#S             #:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+null queue
+LOG: BFS initialization complete
+################:  0
+#0             #:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 1
+NN ROW COL
+ 0   1   1
+Maze AFTER bfs_init()
+################:  0
+#0             #:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 1
+NN ROW COL
+ 0   1   1
+#+END_SRC
+
+* maze_bfs_process_neighbor1
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_process_neighbor1'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_process_neighbor1") {
+    // Make a single call to add a neighbor from an initial tile to an
+    // open neighbor which should create a path for the nighbor and
+    // queue the neighbor for later processing.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    maze_bfs_init(maze);
+    LOG_LEVEL = LOG_ALL;
+    printf("Maze BEFORE processing neighbor(s)\n");
+    maze_print_state(maze);
+    int ret = maze_bfs_process_neighbor(maze,1,1,SOUTH);
+    printf("Maze AFTER processing neighbor\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    printf("Tile Path:\n");
+    tile_print_path(&maze->tiles[2][1],PATH_FORMAT_VERBOSE);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE processing neighbor(s)
+################:  0
+#0             #:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 1
+NN ROW COL
+ 0   1   1
+LOG: Found tile at (2,1) with len 1 path: S
+Maze AFTER processing neighbor
+################:  0
+#0             #:  1
+#1### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   2   1
+ret: 1
+Tile Path:
+path length: 1
+ 0: SOUTH
+#+END_SRC
+
+* maze_bfs_process_neighbor2
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_process_neighbor2'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_process_neighbor2") {
+    // Make 3 successive calls to process neighbors. The 1st and 2nd
+    // will add a new neighbor but the 3rd call will not as due to the
+    // neighbor being a blocked wall.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    maze_bfs_init(maze);
+    LOG_LEVEL = LOG_ALL;
+    printf("Maze BEFORE processing neighbor(s)\n");
+    maze_print_state(maze);
+    int ret = maze_bfs_process_neighbor(maze,1,1,EAST);
+    printf("Maze AFTER processing 1 neighbor(s)\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    printf("Tile Path:\n");
+    tile_print_path(&maze->tiles[1][2],PATH_FORMAT_VERBOSE);
+    ret = maze_bfs_process_neighbor(maze,1,1,SOUTH);
+    printf("Maze AFTER processing 2 neighbor(s)\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    printf("Tile Path:\n");
+    tile_print_path(&maze->tiles[2][1],PATH_FORMAT_VERBOSE);
+    ret = maze_bfs_process_neighbor(maze,1,1,NORTH);
+    printf("Maze AFTER processing 3 neighbor(s)\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    printf("Tile Path:\n");
+    tile_print_path(&maze->tiles[0][1],PATH_FORMAT_VERBOSE);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE processing neighbor(s)
+################:  0
+#0             #:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 1
+NN ROW COL
+ 0   1   1
+LOG: Found tile at (1,2) with len 1 path: E
+Maze AFTER processing 1 neighbor(s)
+################:  0
+#01            #:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   2
+ret: 1
+Tile Path:
+path length: 1
+ 0: EAST
+LOG: Found tile at (2,1) with len 1 path: S
+Maze AFTER processing 2 neighbor(s)
+################:  0
+#01            #:  1
+#1### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 3
+NN ROW COL
+ 0   1   1
+ 1   1   2
+ 2   2   1
+ret: 1
+Tile Path:
+path length: 1
+ 0: SOUTH
+LOG: Skipping BLOCKED tile at (0,1)
+Maze AFTER processing 3 neighbor(s)
+################:  0
+#01            #:  1
+#1### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 3
+NN ROW COL
+ 0   1   1
+ 1   1   2
+ 2   2   1
+ret: 0
+Tile Path:
+No path found
+#+END_SRC
+
+* maze_bfs_process_neighbor3
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_process_neighbor3'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_process_neighbor3") {
+    // Process all 4 neighbors of the start tile which is at the edge
+    // of the maze; some of its neighbors are out of bounds so the
+    // test ensures that bounds checking is done via
+    // maze_tile_blocked(). 
+    char *maze_str =
+      "############## S\n"
+      "#               \n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    maze_bfs_init(maze);
+    LOG_LEVEL = LOG_ALL;
+    printf("Maze BEFORE processing neighbor(s)\n");
+    maze_print_state(maze);
+    int ret, r=maze->start_row, c=maze->start_col;
+    ret = maze_bfs_process_neighbor(maze,r,c,NORTH);
+    printf("Maze AFTER processing 1 neighbor(s)\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    ret = maze_bfs_process_neighbor(maze,r,c,SOUTH);
+    printf("Maze AFTER processing 1 neighbor(s)\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    ret = maze_bfs_process_neighbor(maze,r,c,WEST);
+    printf("Maze AFTER processing 1 neighbor(s)\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    ret = maze_bfs_process_neighbor(maze,r,c,EAST);
+    printf("Maze AFTER processing 1 neighbor(s)\n");
+    maze_print_state(maze);
+    printf("ret: %d\n",ret);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE processing neighbor(s)
+############## 0:  0
+#               :  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 1
+NN ROW COL
+ 0   0  15
+LOG: Skipping BLOCKED tile at (-1,15)
+Maze AFTER processing 1 neighbor(s)
+############## 0:  0
+#               :  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 1
+NN ROW COL
+ 0   0  15
+ret: 0
+LOG: Found tile at (1,15) with len 1 path: S
+Maze AFTER processing 1 neighbor(s)
+############## 0:  0
+#              1:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 2
+NN ROW COL
+ 0   0  15
+ 1   1  15
+ret: 1
+LOG: Found tile at (0,14) with len 1 path: W
+Maze AFTER processing 1 neighbor(s)
+##############10:  0
+#              1:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 3
+NN ROW COL
+ 0   0  15
+ 1   1  15
+ 2   0  14
+ret: 1
+LOG: Skipping BLOCKED tile at (0,16)
+Maze AFTER processing 1 neighbor(s)
+##############10:  0
+#              1:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+queue count: 3
+NN ROW COL
+ 0   0  15
+ 1   1  15
+ 2   0  14
+ret: 0
+#+END_SRC
+
+* maze_bfs_step1
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_step1'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_step1") {
+    // Performs the intial BFS step iterating over the 4 adjacent
+    // tiles to the Start tile which is at the front of the queue in
+    // the example. The NORTH, WEST, EAST neighbor tiles should be
+    // Found and added into the queue while the SOUTH neighbor is
+    // blocked. Logging is on so messages concerning each neighbor
+    // should be displayed.
+    char *maze_str =
+      "###################\n"
+      "#          #    # #\n"
+      "# ###  ##    ## # #\n"
+      "#  ##  # S #  # # #\n"
+      "##  #  #####  # # #\n"
+      "#E  #         #   #\n"
+      "###################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    maze_bfs_init(maze);
+    printf("Maze BEFORE BFS step\n");
+    LOG_LEVEL = LOG_ALL;
+    maze_print_state(maze);
+    int ret = maze_bfs_step(maze);
+    printf("step ret: %d\n",ret);
+    printf("Maze AFTER BFS step\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE BFS step
+###################:  0
+#          #    # #:  1
+# ###  ##    ## # #:  2
+#  ##  # 0 #  # # #:  3
+##  #  #####  # # #:  4
+#E  #         #   #:  5
+###################:  6
+0123456789012345678
+0         1        
+queue count: 1
+NN ROW COL
+ 0   3   9
+LOG: processing neighbors of (3,9)
+LOG: Found tile at (2,9) with len 1 path: N
+LOG: Skipping BLOCKED tile at (4,9)
+LOG: Found tile at (3,8) with len 1 path: W
+LOG: Found tile at (3,10) with len 1 path: E
+LOG: maze state after BFS step
+###################:  0
+#          #    # #:  1
+# ###  ##1   ## # #:  2
+#  ##  #101#  # # #:  3
+##  #  #####  # # #:  4
+#E  #         #   #:  5
+###################:  6
+0123456789012345678
+0         1        
+queue count: 3
+NN ROW COL
+ 0   2   9
+ 1   3   8
+ 2   3  10
+step ret: 1
+Maze AFTER BFS step
+###################:  0
+#          #    # #:  1
+# ###  ##1   ## # #:  2
+#  ##  #101#  # # #:  3
+##  #  #####  # # #:  4
+#E  #         #   #:  5
+###################:  6
+0123456789012345678
+0         1        
+queue count: 3
+NN ROW COL
+ 0   2   9
+ 1   3   8
+ 2   3  10
+#+END_SRC
+
+* maze_bfs_step2
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_step2'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_step2") {
+    // Sets up a BFS that has proceeded a few steps using only stack
+    // data and goes one additional step. Ensures that two neighbors
+    // are added for the processed node. This test relies on a
+    // combination of stack set up in the test and heap data allocated
+    // by user functions so may yield some strange effects if
+    // allocation is done improperly in functions.
+    tile_t rows[5][3] = {
+      { {.type=WALL},{.type=WALL}, {.type=START} },// 0
+      { {.type=OPEN},{.type=OPEN}, {.type=OPEN}  },// 1
+      { {.type=END}, {.type=OPEN}, {.type=WALL}  },// 2
+      { {.type=WALL},{.type=OPEN}, {.type=WALL}  },// 3
+      { {.type=OPEN},{.type=OPEN}, {.type=OPEN}  },// 4
+      //     0            1             2
+    };
+    tile_t *tiles[5] =
+      {rows[0],rows[1],rows[2],rows[3],rows[4]};
+    maze_t maze = {.rows=5, .cols=3, .tiles=tiles};
+    for(int i=0; i<5; i++){
+      for(int j=0; j<3; j++){
+        maze.tiles[i][j].state = NOTFOUND;
+      }
+    }
+    tile_t *tile;
+    direction_t path02[] = {};
+    tile = &maze.tiles[0][2];
+    tile->path = path02;
+    tile->path_len = 0;
+    tile->state = FOUND;
+    direction_t path12[] = {SOUTH};
+    tile = &maze.tiles[1][2];
+    tile->path = path12;
+    tile->path_len = 1;
+    tile->state = FOUND;
+    direction_t path11[] = {SOUTH,WEST};
+    tile = &maze.tiles[1][1];
+    tile->path = path11;
+    tile->path_len = 2;
+    tile->state = FOUND;
+    maze.queue = rcqueue_allocate();
+    rcqueue_add_rear(maze.queue,1,1);
+    printf("Maze BEFORE BFS step\n");
+    LOG_LEVEL = LOG_ALL;
+    maze_print_state(&maze);
+    int ret = maze_bfs_step(&maze);
+    printf("step ret: %d\n",ret);
+    printf("Maze AFTER BFS step\n");
+    maze_print_state(&maze);
+    free(maze.tiles[1][0].path);
+    free(maze.tiles[2][1].path);
+    rcqueue_free(maze.queue);
+}
+---OUTPUT---
+Maze BEFORE BFS step
+##0:  0
+ 21:  1
+E #:  2
+# #:  3
+   :  4
+012
+0  
+queue count: 1
+NN ROW COL
+ 0   1   1
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 3 path: SWS
+LOG: Found tile at (1,0) with len 3 path: SWW
+LOG: Skipping FOUND tile at (1,2)
+LOG: maze state after BFS step
+##0:  0
+321:  1
+E3#:  2
+# #:  3
+   :  4
+012
+0  
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   1   0
+step ret: 1
+Maze AFTER BFS step
+##0:  0
+321:  1
+E3#:  2
+# #:  3
+   :  4
+012
+0  
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   1   0
+#+END_SRC
+
+* maze_bfs_step3
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_step3'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_step3") {
+    // Perform 3 BFS step calls starting from the Start tile. This
+    // will add 3 initial neighbors and then process each in turn
+    // adding additional tiles in the second wave. There is some
+    // redundancy with neighbors so this test also checks that the
+    // FOUND field of tiles is set properly and respected.
+    char *maze_str =
+      "#########\n"
+      "#       #\n"
+      "# # S  ##\n"
+      "#  # ##E#\n"
+      "#       #\n"
+      "#########\n";
+    maze_t *maze = maze_from_string(maze_str);
+    maze_bfs_init(maze);
+    printf("Maze BEFORE BFS step\n");
+    LOG_LEVEL = LOG_ALL;
+    maze_print_state(maze);
+    int ret;
+    ret = maze_bfs_step(maze);
+    printf("step ret: %d\n",ret);
+    printf("Maze AFTER BFS step 1\n");
+    maze_print_state(maze);
+    ret = maze_bfs_step(maze);
+    printf("step ret: %d\n",ret);
+    printf("Maze AFTER BFS step 2\n");
+    maze_print_state(maze);
+    ret = maze_bfs_step(maze);
+    printf("step ret: %d\n",ret);
+    printf("Maze AFTER BFS step 3\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE BFS step
+#########:  0
+#       #:  1
+# # 0  ##:  2
+#  # ##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 1
+NN ROW COL
+ 0   2   4
+LOG: processing neighbors of (2,4)
+LOG: Found tile at (1,4) with len 1 path: N
+LOG: Found tile at (3,4) with len 1 path: S
+LOG: Found tile at (2,3) with len 1 path: W
+LOG: Found tile at (2,5) with len 1 path: E
+LOG: maze state after BFS step
+#########:  0
+#   1   #:  1
+# #101 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   4
+ 1   3   4
+ 2   2   3
+ 3   2   5
+step ret: 1
+Maze AFTER BFS step 1
+#########:  0
+#   1   #:  1
+# #101 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   4
+ 1   3   4
+ 2   2   3
+ 3   2   5
+LOG: processing neighbors of (1,4)
+LOG: Skipping BLOCKED tile at (0,4)
+LOG: Skipping FOUND tile at (2,4)
+LOG: Found tile at (1,3) with len 2 path: NW
+LOG: Found tile at (1,5) with len 2 path: NE
+LOG: maze state after BFS step
+#########:  0
+#  212  #:  1
+# #101 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   3   4
+ 1   2   3
+ 2   2   5
+ 3   1   3
+ 4   1   5
+step ret: 1
+Maze AFTER BFS step 2
+#########:  0
+#  212  #:  1
+# #101 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   3   4
+ 1   2   3
+ 2   2   5
+ 3   1   3
+ 4   1   5
+LOG: processing neighbors of (3,4)
+LOG: Skipping FOUND tile at (2,4)
+LOG: Found tile at (4,4) with len 2 path: SS
+LOG: Skipping BLOCKED tile at (3,3)
+LOG: Skipping BLOCKED tile at (3,5)
+LOG: maze state after BFS step
+#########:  0
+#  212  #:  1
+# #101 ##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   2   3
+ 1   2   5
+ 2   1   3
+ 3   1   5
+ 4   4   4
+step ret: 1
+Maze AFTER BFS step 3
+#########:  0
+#  212  #:  1
+# #101 ##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   2   3
+ 1   2   5
+ 2   1   3
+ 3   1   5
+ 4   4   4
+#+END_SRC
+
+* maze_bfs_iterate1
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_iterate1'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_iterate1") {
+    // Checks the BFS iteration function to ensure it visits all tiles
+    // to obtain paths to each one from the start tile. A small maze
+    // is used which has wall tiles around the edges.
+    char *maze_str =
+      "#####\n"
+      "# S #\n"
+      "# # #\n"
+      "# E #\n"
+      "#####\n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("Maze BEFORE BFS iteration\n");
+    maze_print_state(maze);
+    LOG_LEVEL = LOG_ALL;
+    maze_bfs_iterate(maze);
+    printf("Maze AFTER BFS iteration\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE BFS iteration
+#####:  0
+# S #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+null queue
+LOG: BFS initialization complete
+#####:  0
+# 0 #:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   1   2
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Found tile at (1,1) with len 1 path: W
+LOG: Found tile at (1,3) with len 1 path: E
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+# # #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   1
+ 1   1   3
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 2 path: WS
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping FOUND tile at (1,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2# #:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   2   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Found tile at (2,3) with len 2 path: ES
+LOG: Skipping FOUND tile at (1,2)
+LOG: Skipping BLOCKED tile at (1,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+# E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   2   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 3 path: WSS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E #:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   2   3
+ 1   3   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,3)
+LOG: Skipping FOUND tile at (1,3)
+LOG: Found tile at (3,3) with len 3 path: ESS
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#3E3#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   3
+LOG: BFS STEP 6
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Skipping BLOCKED tile at (4,1)
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Found tile at (3,2) with len 4 path: WSSE
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 2
+NN ROW COL
+ 0   3   3
+ 1   3   2
+LOG: BFS STEP 7
+LOG: processing neighbors of (3,3)
+LOG: Skipping FOUND tile at (2,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping FOUND tile at (3,2)
+LOG: Skipping BLOCKED tile at (3,4)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 1
+NN ROW COL
+ 0   3   2
+LOG: BFS STEP 8
+LOG: processing neighbors of (3,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Skipping FOUND tile at (3,3)
+LOG: maze state after BFS step
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+Maze AFTER BFS iteration
+#####:  0
+#101#:  1
+#2#2#:  2
+#343#:  3
+#####:  4
+01234
+0    
+queue count: 0
+NN ROW COL
+#+END_SRC
+
+* maze_bfs_iterate2
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_iterate2'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_iterate2") {
+    // Checks the BFS iteration function to ensure it visits all tiles
+    // to obtain paths to each one from the start tile. A small maze
+    // is used without a "bounding wall".
+    char *maze_str =
+      "S \n"
+      "# \n"
+      "E \n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("Maze BEFORE BFS iteration\n");
+    maze_print_state(maze);
+    LOG_LEVEL = LOG_ALL;
+    maze_bfs_iterate(maze);
+    printf("Maze AFTER BFS iteration\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE BFS iteration
+S :  0
+# :  1
+E :  2
+01
+0 
+null queue
+LOG: BFS initialization complete
+0 :  0
+# :  1
+E :  2
+01
+0 
+queue count: 1
+NN ROW COL
+ 0   0   0
+LOG: BFS STEP 1
+LOG: processing neighbors of (0,0)
+LOG: Skipping BLOCKED tile at (-1,0)
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping BLOCKED tile at (0,-1)
+LOG: Found tile at (0,1) with len 1 path: E
+LOG: maze state after BFS step
+01:  0
+# :  1
+E :  2
+01
+0 
+queue count: 1
+NN ROW COL
+ 0   0   1
+LOG: BFS STEP 2
+LOG: processing neighbors of (0,1)
+LOG: Skipping BLOCKED tile at (-1,1)
+LOG: Found tile at (1,1) with len 2 path: ES
+LOG: Skipping FOUND tile at (0,0)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: maze state after BFS step
+01:  0
+#2:  1
+E :  2
+01
+0 
+queue count: 1
+NN ROW COL
+ 0   1   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,1)
+LOG: Skipping FOUND tile at (0,1)
+LOG: Found tile at (2,1) with len 3 path: ESS
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping BLOCKED tile at (1,2)
+LOG: maze state after BFS step
+01:  0
+#2:  1
+E3:  2
+01
+0 
+queue count: 1
+NN ROW COL
+ 0   2   1
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Skipping BLOCKED tile at (3,1)
+LOG: Found tile at (2,0) with len 4 path: ESSW
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+01:  0
+#2:  1
+43:  2
+01
+0 
+queue count: 1
+NN ROW COL
+ 0   2   0
+LOG: BFS STEP 5
+LOG: processing neighbors of (2,0)
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Skipping BLOCKED tile at (2,-1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: maze state after BFS step
+01:  0
+#2:  1
+43:  2
+01
+0 
+queue count: 0
+NN ROW COL
+Maze AFTER BFS iteration
+01:  0
+#2:  1
+43:  2
+01
+0 
+queue count: 0
+NN ROW COL
+#+END_SRC
+
+* maze_bfs_iterate3
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_iterate3'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_iterate3") {
+    // Checks the BFS iteration function to ensure it visits all tiles
+    // to obtain paths to each one from the start tile. A larger maze
+    // is used where the end tile is not the last tile to be visited
+    // during BFS.
+    char *maze_str =
+      "###########\n"
+      "#S       ##\n"
+      "# ### ## ##\n"
+      "# ### ## ##\n"
+      "# ###E## ##\n"
+      "#        ##\n"
+      "###########\n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("Maze BEFORE BFS iteration\n");
+    maze_print_state(maze);
+    LOG_LEVEL = LOG_ALL;
+    maze_bfs_iterate(maze);
+    printf("Maze AFTER BFS iteration\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE BFS iteration
+###########:  0
+#S       ##:  1
+# ### ## ##:  2
+# ### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+null queue
+LOG: BFS initialization complete
+###########:  0
+#0       ##:  1
+# ### ## ##:  2
+# ### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 1
+NN ROW COL
+ 0   1   1
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 1 path: S
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Found tile at (1,2) with len 1 path: E
+LOG: maze state after BFS step
+###########:  0
+#01      ##:  1
+#1### ## ##:  2
+# ### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   1   2
+LOG: BFS STEP 2
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 2 path: SS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+###########:  0
+#01      ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   2
+ 1   3   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (1,3) with len 2 path: EE
+LOG: maze state after BFS step
+###########:  0
+#012     ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   1   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Found tile at (4,1) with len 3 path: SSS
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Skipping BLOCKED tile at (3,2)
+LOG: maze state after BFS step
+###########:  0
+#012     ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   4   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Skipping BLOCKED tile at (2,3)
+LOG: Skipping FOUND tile at (1,2)
+LOG: Found tile at (1,4) with len 3 path: EEE
+LOG: maze state after BFS step
+###########:  0
+#0123    ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   4   1
+ 1   1   4
+LOG: BFS STEP 6
+LOG: processing neighbors of (4,1)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Found tile at (5,1) with len 4 path: SSSS
+LOG: Skipping BLOCKED tile at (4,0)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: maze state after BFS step
+###########:  0
+#0123    ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#4       ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   4
+ 1   5   1
+LOG: BFS STEP 7
+LOG: processing neighbors of (1,4)
+LOG: Skipping BLOCKED tile at (0,4)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: Skipping FOUND tile at (1,3)
+LOG: Found tile at (1,5) with len 4 path: EEEE
+LOG: maze state after BFS step
+###########:  0
+#01234   ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#4       ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   1
+ 1   1   5
+LOG: BFS STEP 8
+LOG: processing neighbors of (5,1)
+LOG: Skipping FOUND tile at (4,1)
+LOG: Skipping BLOCKED tile at (6,1)
+LOG: Skipping BLOCKED tile at (5,0)
+LOG: Found tile at (5,2) with len 5 path: SSSSE
+LOG: maze state after BFS step
+###########:  0
+#01234   ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#45      ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   5
+ 1   5   2
+LOG: BFS STEP 9
+LOG: processing neighbors of (1,5)
+LOG: Skipping BLOCKED tile at (0,5)
+LOG: Found tile at (2,5) with len 5 path: EEEES
+LOG: Skipping FOUND tile at (1,4)
+LOG: Found tile at (1,6) with len 5 path: EEEEE
+LOG: maze state after BFS step
+###########:  0
+#012345  ##:  1
+#1###5## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#45      ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   5   2
+ 1   2   5
+ 2   1   6
+LOG: BFS STEP 10
+LOG: processing neighbors of (5,2)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: Skipping BLOCKED tile at (6,2)
+LOG: Skipping FOUND tile at (5,1)
+LOG: Found tile at (5,3) with len 6 path: SSSSEE
+LOG: maze state after BFS step
+###########:  0
+#012345  ##:  1
+#1###5## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#456     ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   2   5
+ 1   1   6
+ 2   5   3
+LOG: BFS STEP 11
+LOG: processing neighbors of (2,5)
+LOG: Skipping FOUND tile at (1,5)
+LOG: Found tile at (3,5) with len 6 path: EEEESS
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: Skipping BLOCKED tile at (2,6)
+LOG: maze state after BFS step
+###########:  0
+#012345  ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###E## ##:  4
+#456     ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   1   6
+ 1   5   3
+ 2   3   5
+LOG: BFS STEP 12
+LOG: processing neighbors of (1,6)
+LOG: Skipping BLOCKED tile at (0,6)
+LOG: Skipping BLOCKED tile at (2,6)
+LOG: Skipping FOUND tile at (1,5)
+LOG: Found tile at (1,7) with len 6 path: EEEEEE
+LOG: maze state after BFS step
+###########:  0
+#0123456 ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###E## ##:  4
+#456     ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   5   3
+ 1   3   5
+ 2   1   7
+LOG: BFS STEP 13
+LOG: processing neighbors of (5,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping BLOCKED tile at (6,3)
+LOG: Skipping FOUND tile at (5,2)
+LOG: Found tile at (5,4) with len 7 path: SSSSEEE
+LOG: maze state after BFS step
+###########:  0
+#0123456 ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###E## ##:  4
+#4567    ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   3   5
+ 1   1   7
+ 2   5   4
+LOG: BFS STEP 14
+LOG: processing neighbors of (3,5)
+LOG: Skipping FOUND tile at (2,5)
+LOG: Found tile at (4,5) with len 7 path: EEEESSS
+LOG: Skipping BLOCKED tile at (3,4)
+LOG: Skipping BLOCKED tile at (3,6)
+LOG: maze state after BFS step
+###########:  0
+#0123456 ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#4567    ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   1   7
+ 1   5   4
+ 2   4   5
+LOG: BFS STEP 15
+LOG: processing neighbors of (1,7)
+LOG: Skipping BLOCKED tile at (0,7)
+LOG: Skipping BLOCKED tile at (2,7)
+LOG: Skipping FOUND tile at (1,6)
+LOG: Found tile at (1,8) with len 7 path: EEEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#4567    ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   5   4
+ 1   4   5
+ 2   1   8
+LOG: BFS STEP 16
+LOG: processing neighbors of (5,4)
+LOG: Skipping BLOCKED tile at (4,4)
+LOG: Skipping BLOCKED tile at (6,4)
+LOG: Skipping FOUND tile at (5,3)
+LOG: Found tile at (5,5) with len 8 path: SSSSEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#45678   ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   4   5
+ 1   1   8
+ 2   5   5
+LOG: BFS STEP 17
+LOG: processing neighbors of (4,5)
+LOG: Skipping FOUND tile at (3,5)
+LOG: Skipping FOUND tile at (5,5)
+LOG: Skipping BLOCKED tile at (4,4)
+LOG: Skipping BLOCKED tile at (4,6)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#45678   ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   8
+ 1   5   5
+LOG: BFS STEP 18
+LOG: processing neighbors of (1,8)
+LOG: Skipping BLOCKED tile at (0,8)
+LOG: Found tile at (2,8) with len 8 path: EEEEEEES
+LOG: Skipping FOUND tile at (1,7)
+LOG: Skipping BLOCKED tile at (1,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#45678   ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   5
+ 1   2   8
+LOG: BFS STEP 19
+LOG: processing neighbors of (5,5)
+LOG: Skipping FOUND tile at (4,5)
+LOG: Skipping BLOCKED tile at (6,5)
+LOG: Skipping FOUND tile at (5,4)
+LOG: Found tile at (5,6) with len 9 path: SSSSEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#456789  ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   2   8
+ 1   5   6
+LOG: BFS STEP 20
+LOG: processing neighbors of (2,8)
+LOG: Skipping FOUND tile at (1,8)
+LOG: Found tile at (3,8) with len 9 path: EEEEEEESS
+LOG: Skipping BLOCKED tile at (2,7)
+LOG: Skipping BLOCKED tile at (2,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7## ##:  4
+#456789  ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   6
+ 1   3   8
+LOG: BFS STEP 21
+LOG: processing neighbors of (5,6)
+LOG: Skipping BLOCKED tile at (4,6)
+LOG: Skipping BLOCKED tile at (6,6)
+LOG: Skipping FOUND tile at (5,5)
+LOG: Found tile at (5,7) with len 10 path: SSSSEEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7## ##:  4
+#456789a ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   3   8
+ 1   5   7
+LOG: BFS STEP 22
+LOG: processing neighbors of (3,8)
+LOG: Skipping FOUND tile at (2,8)
+LOG: Found tile at (4,8) with len 10 path: EEEEEEESSS
+LOG: Skipping BLOCKED tile at (3,7)
+LOG: Skipping BLOCKED tile at (3,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   7
+ 1   4   8
+LOG: BFS STEP 23
+LOG: processing neighbors of (5,7)
+LOG: Skipping BLOCKED tile at (4,7)
+LOG: Skipping BLOCKED tile at (6,7)
+LOG: Skipping FOUND tile at (5,6)
+LOG: Found tile at (5,8) with len 11 path: SSSSEEEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   4   8
+ 1   5   8
+LOG: BFS STEP 24
+LOG: processing neighbors of (4,8)
+LOG: Skipping FOUND tile at (3,8)
+LOG: Skipping FOUND tile at (5,8)
+LOG: Skipping BLOCKED tile at (4,7)
+LOG: Skipping BLOCKED tile at (4,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 1
+NN ROW COL
+ 0   5   8
+LOG: BFS STEP 25
+LOG: processing neighbors of (5,8)
+LOG: Skipping FOUND tile at (4,8)
+LOG: Skipping BLOCKED tile at (6,8)
+LOG: Skipping FOUND tile at (5,7)
+LOG: Skipping BLOCKED tile at (5,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 0
+NN ROW COL
+Maze AFTER BFS iteration
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 0
+NN ROW COL
+#+END_SRC
+
+* maze_set_solution1
+#+TESTY: program='./test_mazesolve_funcs maze_set_solution1'
+#+BEGIN_SRC sh
+IF_TEST("maze_set_solution1") {
+    // Set tile states to ONPATH between the Start and End tiles using
+    // the path established during test setup for the End tile.
+    char *maze_str =
+      "#####\n"
+      "# S #\n"
+      "# # #\n"
+      "# E #\n"
+      "#####\n";
+    int path_len = 4;
+    direction_t path[4] = {WEST,SOUTH,SOUTH,EAST};
+    maze_t *maze = maze_from_string(maze_str);
+    tile_t *end_tile = &maze->tiles[maze->end_row][maze->end_col];
+    end_tile->path_len = path_len;
+    end_tile->path = malloc(sizeof(direction_t)*path_len);
+    memcpy(end_tile->path, path, sizeof(direction_t)*path_len);
+    printf("Maze BEFORE Setting Solution\n");
+    maze_print_tiles(maze);
+    LOG_LEVEL = LOG_ALL;
+    printf("Setting Solution Path\n");
+    int ret = maze_set_solution(maze);
+    printf("ret: %d\n",ret);
+    printf("Maze AFTER Setting Solution\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE Setting Solution
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+# S #
+# # #
+# E #
+#####
+Setting Solution Path
+LOG: solution START at (1,2)
+LOG: solution path[0] is WEST, set (1,1) to ONPATH
+LOG: solution path[1] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[2] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[3] is EAST, set (3,2) to ONPATH
+LOG: solution END at (3,2)
+ret: 1
+Maze AFTER Setting Solution
+maze: 5 rows 5 cols
+      (1,2) start
+      (3,2) end
+maze tiles:
+#####
+#.S #
+#.# #
+#.E #
+#####
+#+END_SRC
+
+* maze_set_solution2
+#+TESTY: program='./test_mazesolve_funcs maze_set_solution2'
+#+BEGIN_SRC sh
+IF_TEST("maze_set_solution2") {
+    // Set tile states to ONPATH between the Start and End tiles using
+    // the path established during test setup for the End tile.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    int path_len = 17;
+    direction_t path[17] =
+      {SOUTH,SOUTH,SOUTH,SOUTH,EAST,EAST,EAST,EAST,EAST,
+       EAST,EAST,EAST,EAST,NORTH,NORTH,WEST,WEST};
+    maze_t *maze = maze_from_string(maze_str);
+    tile_t *end_tile = &maze->tiles[maze->end_row][maze->end_col];
+    end_tile->path_len = path_len;
+    end_tile->path = malloc(sizeof(direction_t)*path_len);
+    memcpy(end_tile->path, path, sizeof(direction_t)*path_len);
+    printf("Maze BEFORE Setting Solution\n");
+    maze_print_tiles(maze);
+    LOG_LEVEL = LOG_ALL;
+    printf("Setting Solution Path\n");
+    int ret = maze_set_solution(maze);
+    printf("ret: %d\n",ret);
+    printf("Maze AFTER Setting Solution\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE Setting Solution
+maze: 7 rows 16 cols
+      (1,1) start
+      (3,8) end
+maze tiles:
+################
+#S             #
+# ### ###### # #
+# ### ##E  #   #
+# ### #### ##  #
+#              #
+################
+Setting Solution Path
+LOG: solution START at (1,1)
+LOG: solution path[0] is SOUTH, set (2,1) to ONPATH
+LOG: solution path[1] is SOUTH, set (3,1) to ONPATH
+LOG: solution path[2] is SOUTH, set (4,1) to ONPATH
+LOG: solution path[3] is SOUTH, set (5,1) to ONPATH
+LOG: solution path[4] is EAST, set (5,2) to ONPATH
+LOG: solution path[5] is EAST, set (5,3) to ONPATH
+LOG: solution path[6] is EAST, set (5,4) to ONPATH
+LOG: solution path[7] is EAST, set (5,5) to ONPATH
+LOG: solution path[8] is EAST, set (5,6) to ONPATH
+LOG: solution path[9] is EAST, set (5,7) to ONPATH
+LOG: solution path[10] is EAST, set (5,8) to ONPATH
+LOG: solution path[11] is EAST, set (5,9) to ONPATH
+LOG: solution path[12] is EAST, set (5,10) to ONPATH
+LOG: solution path[13] is NORTH, set (4,10) to ONPATH
+LOG: solution path[14] is NORTH, set (3,10) to ONPATH
+LOG: solution path[15] is WEST, set (3,9) to ONPATH
+LOG: solution path[16] is WEST, set (3,8) to ONPATH
+LOG: solution END at (3,8)
+ret: 1
+Maze AFTER Setting Solution
+maze: 7 rows 16 cols
+      (1,1) start
+      (3,8) end
+maze tiles:
+################
+#S             #
+#.### ###### # #
+#.### ##E..#   #
+#.### ####.##  #
+#..........    #
+################
+#+END_SRC
+
+* maze_set_solution3
+#+TESTY: program='./test_mazesolve_funcs maze_set_solution3'
+#+BEGIN_SRC sh
+IF_TEST("maze_set_solution3") {
+    // No path exists from the Start to End tile and the End tile path
+    // is NULL in this example so the set_solution() function will
+    // return 0 without making any changes to the maze.
+    char *maze_str =
+      "########\n"
+      "#     S#\n"
+      "# # ####\n"
+      "# #    #\n"
+      "# ######\n"
+      "#      #\n"
+      "###### #\n"
+      "# ##   #\n"
+      "#E#  # #\n"
+      "########\n";
+    maze_t *maze = maze_from_string(maze_str);
+    tile_t *end_tile = &maze->tiles[maze->end_row][maze->end_col];
+    printf("Maze BEFORE Setting Solution\n");
+    maze_print_tiles(maze);
+    LOG_LEVEL = LOG_ALL;
+    printf("Setting Solution Path\n");
+    int ret = maze_set_solution(maze);
+    printf("ret: %d\n",ret);
+    printf("Maze AFTER Setting Solution\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE Setting Solution
+maze: 10 rows 8 cols
+      (1,6) start
+      (8,1) end
+maze tiles:
+########
+#     S#
+# # ####
+# #    #
+# ######
+#      #
+###### #
+# ##   #
+#E#  # #
+########
+Setting Solution Path
+ret: 0
+Maze AFTER Setting Solution
+maze: 10 rows 8 cols
+      (1,6) start
+      (8,1) end
+maze tiles:
+########
+#     S#
+# # ####
+# #    #
+# ######
+#      #
+###### #
+# ##   #
+#E#  # #
+########
+#+END_SRC
+
+* maze_bfs_complete1
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_complete1'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_complete1") {
+    // Perform BFS iteration on a medium maze then set the solution
+    // and print it. Represents similar flow to the main program.
+    char *maze_str =
+      "###########\n"
+      "#S       ##\n"
+      "# ### ## ##\n"
+      "# ### ## ##\n"
+      "# ###E## ##\n"
+      "#        ##\n"
+      "###########\n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("Maze BEFORE BFS iteration\n");
+    maze_print_state(maze);
+    LOG_LEVEL = LOG_ALL;
+    maze_bfs_iterate(maze);
+    printf("Maze AFTER BFS iteration\n");
+    maze_print_state(maze);
+    printf("Maze BEFORE Setting Solution\n");
+    maze_print_tiles(maze);
+    printf("Setting Solution Path\n");
+    int ret = maze_set_solution(maze);
+    printf("ret: %d\n",ret);
+    printf("Maze AFTER Setting Solution\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE BFS iteration
+###########:  0
+#S       ##:  1
+# ### ## ##:  2
+# ### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+null queue
+LOG: BFS initialization complete
+###########:  0
+#0       ##:  1
+# ### ## ##:  2
+# ### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 1
+NN ROW COL
+ 0   1   1
+LOG: BFS STEP 1
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 1 path: S
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Found tile at (1,2) with len 1 path: E
+LOG: maze state after BFS step
+###########:  0
+#01      ##:  1
+#1### ## ##:  2
+# ### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   2   1
+ 1   1   2
+LOG: BFS STEP 2
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 2 path: SS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+###########:  0
+#01      ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   2
+ 1   3   1
+LOG: BFS STEP 3
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (1,3) with len 2 path: EE
+LOG: maze state after BFS step
+###########:  0
+#012     ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+# ###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   1   3
+LOG: BFS STEP 4
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Found tile at (4,1) with len 3 path: SSS
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Skipping BLOCKED tile at (3,2)
+LOG: maze state after BFS step
+###########:  0
+#012     ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   3
+ 1   4   1
+LOG: BFS STEP 5
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Skipping BLOCKED tile at (2,3)
+LOG: Skipping FOUND tile at (1,2)
+LOG: Found tile at (1,4) with len 3 path: EEE
+LOG: maze state after BFS step
+###########:  0
+#0123    ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#        ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   4   1
+ 1   1   4
+LOG: BFS STEP 6
+LOG: processing neighbors of (4,1)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Found tile at (5,1) with len 4 path: SSSS
+LOG: Skipping BLOCKED tile at (4,0)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: maze state after BFS step
+###########:  0
+#0123    ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#4       ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   4
+ 1   5   1
+LOG: BFS STEP 7
+LOG: processing neighbors of (1,4)
+LOG: Skipping BLOCKED tile at (0,4)
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: Skipping FOUND tile at (1,3)
+LOG: Found tile at (1,5) with len 4 path: EEEE
+LOG: maze state after BFS step
+###########:  0
+#01234   ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#4       ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   1
+ 1   1   5
+LOG: BFS STEP 8
+LOG: processing neighbors of (5,1)
+LOG: Skipping FOUND tile at (4,1)
+LOG: Skipping BLOCKED tile at (6,1)
+LOG: Skipping BLOCKED tile at (5,0)
+LOG: Found tile at (5,2) with len 5 path: SSSSE
+LOG: maze state after BFS step
+###########:  0
+#01234   ##:  1
+#1### ## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#45      ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   5
+ 1   5   2
+LOG: BFS STEP 9
+LOG: processing neighbors of (1,5)
+LOG: Skipping BLOCKED tile at (0,5)
+LOG: Found tile at (2,5) with len 5 path: EEEES
+LOG: Skipping FOUND tile at (1,4)
+LOG: Found tile at (1,6) with len 5 path: EEEEE
+LOG: maze state after BFS step
+###########:  0
+#012345  ##:  1
+#1###5## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#45      ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   5   2
+ 1   2   5
+ 2   1   6
+LOG: BFS STEP 10
+LOG: processing neighbors of (5,2)
+LOG: Skipping BLOCKED tile at (4,2)
+LOG: Skipping BLOCKED tile at (6,2)
+LOG: Skipping FOUND tile at (5,1)
+LOG: Found tile at (5,3) with len 6 path: SSSSEE
+LOG: maze state after BFS step
+###########:  0
+#012345  ##:  1
+#1###5## ##:  2
+#2### ## ##:  3
+#3###E## ##:  4
+#456     ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   2   5
+ 1   1   6
+ 2   5   3
+LOG: BFS STEP 11
+LOG: processing neighbors of (2,5)
+LOG: Skipping FOUND tile at (1,5)
+LOG: Found tile at (3,5) with len 6 path: EEEESS
+LOG: Skipping BLOCKED tile at (2,4)
+LOG: Skipping BLOCKED tile at (2,6)
+LOG: maze state after BFS step
+###########:  0
+#012345  ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###E## ##:  4
+#456     ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   1   6
+ 1   5   3
+ 2   3   5
+LOG: BFS STEP 12
+LOG: processing neighbors of (1,6)
+LOG: Skipping BLOCKED tile at (0,6)
+LOG: Skipping BLOCKED tile at (2,6)
+LOG: Skipping FOUND tile at (1,5)
+LOG: Found tile at (1,7) with len 6 path: EEEEEE
+LOG: maze state after BFS step
+###########:  0
+#0123456 ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###E## ##:  4
+#456     ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   5   3
+ 1   3   5
+ 2   1   7
+LOG: BFS STEP 13
+LOG: processing neighbors of (5,3)
+LOG: Skipping BLOCKED tile at (4,3)
+LOG: Skipping BLOCKED tile at (6,3)
+LOG: Skipping FOUND tile at (5,2)
+LOG: Found tile at (5,4) with len 7 path: SSSSEEE
+LOG: maze state after BFS step
+###########:  0
+#0123456 ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###E## ##:  4
+#4567    ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   3   5
+ 1   1   7
+ 2   5   4
+LOG: BFS STEP 14
+LOG: processing neighbors of (3,5)
+LOG: Skipping FOUND tile at (2,5)
+LOG: Found tile at (4,5) with len 7 path: EEEESSS
+LOG: Skipping BLOCKED tile at (3,4)
+LOG: Skipping BLOCKED tile at (3,6)
+LOG: maze state after BFS step
+###########:  0
+#0123456 ##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#4567    ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   1   7
+ 1   5   4
+ 2   4   5
+LOG: BFS STEP 15
+LOG: processing neighbors of (1,7)
+LOG: Skipping BLOCKED tile at (0,7)
+LOG: Skipping BLOCKED tile at (2,7)
+LOG: Skipping FOUND tile at (1,6)
+LOG: Found tile at (1,8) with len 7 path: EEEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#4567    ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   5   4
+ 1   4   5
+ 2   1   8
+LOG: BFS STEP 16
+LOG: processing neighbors of (5,4)
+LOG: Skipping BLOCKED tile at (4,4)
+LOG: Skipping BLOCKED tile at (6,4)
+LOG: Skipping FOUND tile at (5,3)
+LOG: Found tile at (5,5) with len 8 path: SSSSEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#45678   ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 3
+NN ROW COL
+ 0   4   5
+ 1   1   8
+ 2   5   5
+LOG: BFS STEP 17
+LOG: processing neighbors of (4,5)
+LOG: Skipping FOUND tile at (3,5)
+LOG: Skipping FOUND tile at (5,5)
+LOG: Skipping BLOCKED tile at (4,4)
+LOG: Skipping BLOCKED tile at (4,6)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5## ##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#45678   ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   1   8
+ 1   5   5
+LOG: BFS STEP 18
+LOG: processing neighbors of (1,8)
+LOG: Skipping BLOCKED tile at (0,8)
+LOG: Found tile at (2,8) with len 8 path: EEEEEEES
+LOG: Skipping FOUND tile at (1,7)
+LOG: Skipping BLOCKED tile at (1,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#45678   ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   5
+ 1   2   8
+LOG: BFS STEP 19
+LOG: processing neighbors of (5,5)
+LOG: Skipping FOUND tile at (4,5)
+LOG: Skipping BLOCKED tile at (6,5)
+LOG: Skipping FOUND tile at (5,4)
+LOG: Found tile at (5,6) with len 9 path: SSSSEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6## ##:  3
+#3###7## ##:  4
+#456789  ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   2   8
+ 1   5   6
+LOG: BFS STEP 20
+LOG: processing neighbors of (2,8)
+LOG: Skipping FOUND tile at (1,8)
+LOG: Found tile at (3,8) with len 9 path: EEEEEEESS
+LOG: Skipping BLOCKED tile at (2,7)
+LOG: Skipping BLOCKED tile at (2,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7## ##:  4
+#456789  ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   6
+ 1   3   8
+LOG: BFS STEP 21
+LOG: processing neighbors of (5,6)
+LOG: Skipping BLOCKED tile at (4,6)
+LOG: Skipping BLOCKED tile at (6,6)
+LOG: Skipping FOUND tile at (5,5)
+LOG: Found tile at (5,7) with len 10 path: SSSSEEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7## ##:  4
+#456789a ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   3   8
+ 1   5   7
+LOG: BFS STEP 22
+LOG: processing neighbors of (3,8)
+LOG: Skipping FOUND tile at (2,8)
+LOG: Found tile at (4,8) with len 10 path: EEEEEEESSS
+LOG: Skipping BLOCKED tile at (3,7)
+LOG: Skipping BLOCKED tile at (3,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a ##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   5   7
+ 1   4   8
+LOG: BFS STEP 23
+LOG: processing neighbors of (5,7)
+LOG: Skipping BLOCKED tile at (4,7)
+LOG: Skipping BLOCKED tile at (6,7)
+LOG: Skipping FOUND tile at (5,6)
+LOG: Found tile at (5,8) with len 11 path: SSSSEEEEEEE
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 2
+NN ROW COL
+ 0   4   8
+ 1   5   8
+LOG: BFS STEP 24
+LOG: processing neighbors of (4,8)
+LOG: Skipping FOUND tile at (3,8)
+LOG: Skipping FOUND tile at (5,8)
+LOG: Skipping BLOCKED tile at (4,7)
+LOG: Skipping BLOCKED tile at (4,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 1
+NN ROW COL
+ 0   5   8
+LOG: BFS STEP 25
+LOG: processing neighbors of (5,8)
+LOG: Skipping FOUND tile at (4,8)
+LOG: Skipping BLOCKED tile at (6,8)
+LOG: Skipping FOUND tile at (5,7)
+LOG: Skipping BLOCKED tile at (5,9)
+LOG: maze state after BFS step
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 0
+NN ROW COL
+Maze AFTER BFS iteration
+###########:  0
+#01234567##:  1
+#1###5##8##:  2
+#2###6##9##:  3
+#3###7##a##:  4
+#456789a1##:  5
+###########:  6
+01234567890
+0         1
+queue count: 0
+NN ROW COL
+Maze BEFORE Setting Solution
+maze: 7 rows 11 cols
+      (1,1) start
+      (4,5) end
+maze tiles:
+###########
+#S       ##
+# ### ## ##
+# ### ## ##
+# ###E## ##
+#        ##
+###########
+Setting Solution Path
+LOG: solution START at (1,1)
+LOG: solution path[0] is EAST, set (1,2) to ONPATH
+LOG: solution path[1] is EAST, set (1,3) to ONPATH
+LOG: solution path[2] is EAST, set (1,4) to ONPATH
+LOG: solution path[3] is EAST, set (1,5) to ONPATH
+LOG: solution path[4] is SOUTH, set (2,5) to ONPATH
+LOG: solution path[5] is SOUTH, set (3,5) to ONPATH
+LOG: solution path[6] is SOUTH, set (4,5) to ONPATH
+LOG: solution END at (4,5)
+ret: 1
+Maze AFTER Setting Solution
+maze: 7 rows 11 cols
+      (1,1) start
+      (4,5) end
+maze tiles:
+###########
+#S....   ##
+# ###.## ##
+# ###.## ##
+# ###E## ##
+#        ##
+###########
+#+END_SRC
+
+* maze_bfs_complete2
+#+TESTY: program='./test_mazesolve_funcs maze_bfs_complete2'
+#+BEGIN_SRC sh
+IF_TEST("maze_bfs_complete2") {
+    // Perform BFS iteration on a medium maze then set the solution
+    // and print it. Represents similar flow to the main program.
+    char *maze_str =
+      "#########\n"
+      "#    #  #\n"
+      "# ##S  ##\n"
+      "#  # ##E#\n"
+      "#       #\n"
+      "#########\n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("Maze BEFORE BFS iteration\n");
+    maze_print_state(maze);
+    LOG_LEVEL = LOG_ALL;
+    maze_bfs_iterate(maze);
+    printf("Maze AFTER BFS iteration\n");
+    maze_print_state(maze);
+    printf("Maze BEFORE Setting Solution\n");
+    maze_print_tiles(maze);
+    printf("Setting Solution Path\n");
+    int ret = maze_set_solution(maze);
+    printf("ret: %d\n",ret);
+    printf("Maze AFTER Setting Solution\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+Maze BEFORE BFS iteration
+#########:  0
+#    #  #:  1
+# ##S  ##:  2
+#  # ##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+null queue
+LOG: BFS initialization complete
+#########:  0
+#    #  #:  1
+# ##0  ##:  2
+#  # ##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 1
+NN ROW COL
+ 0   2   4
+LOG: BFS STEP 1
+LOG: processing neighbors of (2,4)
+LOG: Found tile at (1,4) with len 1 path: N
+LOG: Found tile at (3,4) with len 1 path: S
+LOG: Skipping BLOCKED tile at (2,3)
+LOG: Found tile at (2,5) with len 1 path: E
+LOG: maze state after BFS step
+#########:  0
+#   1#  #:  1
+# ##01 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   1   4
+ 1   3   4
+ 2   2   5
+LOG: BFS STEP 2
+LOG: processing neighbors of (1,4)
+LOG: Skipping BLOCKED tile at (0,4)
+LOG: Skipping FOUND tile at (2,4)
+LOG: Found tile at (1,3) with len 2 path: NW
+LOG: Skipping BLOCKED tile at (1,5)
+LOG: maze state after BFS step
+#########:  0
+#  21#  #:  1
+# ##01 ##:  2
+#  #1##E#:  3
+#       #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   3   4
+ 1   2   5
+ 2   1   3
+LOG: BFS STEP 3
+LOG: processing neighbors of (3,4)
+LOG: Skipping FOUND tile at (2,4)
+LOG: Found tile at (4,4) with len 2 path: SS
+LOG: Skipping BLOCKED tile at (3,3)
+LOG: Skipping BLOCKED tile at (3,5)
+LOG: maze state after BFS step
+#########:  0
+#  21#  #:  1
+# ##01 ##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   2   5
+ 1   1   3
+ 2   4   4
+LOG: BFS STEP 4
+LOG: processing neighbors of (2,5)
+LOG: Skipping BLOCKED tile at (1,5)
+LOG: Skipping BLOCKED tile at (3,5)
+LOG: Skipping FOUND tile at (2,4)
+LOG: Found tile at (2,6) with len 2 path: EE
+LOG: maze state after BFS step
+#########:  0
+#  21#  #:  1
+# ##012##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   1   3
+ 1   4   4
+ 2   2   6
+LOG: BFS STEP 5
+LOG: processing neighbors of (1,3)
+LOG: Skipping BLOCKED tile at (0,3)
+LOG: Skipping BLOCKED tile at (2,3)
+LOG: Found tile at (1,2) with len 3 path: NWW
+LOG: Skipping FOUND tile at (1,4)
+LOG: maze state after BFS step
+#########:  0
+# 321#  #:  1
+# ##012##:  2
+#  #1##E#:  3
+#   2   #:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   4   4
+ 1   2   6
+ 2   1   2
+LOG: BFS STEP 6
+LOG: processing neighbors of (4,4)
+LOG: Skipping FOUND tile at (3,4)
+LOG: Skipping BLOCKED tile at (5,4)
+LOG: Found tile at (4,3) with len 3 path: SSW
+LOG: Found tile at (4,5) with len 3 path: SSE
+LOG: maze state after BFS step
+#########:  0
+# 321#  #:  1
+# ##012##:  2
+#  #1##E#:  3
+#  323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   2   6
+ 1   1   2
+ 2   4   3
+ 3   4   5
+LOG: BFS STEP 7
+LOG: processing neighbors of (2,6)
+LOG: Found tile at (1,6) with len 3 path: EEN
+LOG: Skipping BLOCKED tile at (3,6)
+LOG: Skipping FOUND tile at (2,5)
+LOG: Skipping BLOCKED tile at (2,7)
+LOG: maze state after BFS step
+#########:  0
+# 321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+#  323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   2
+ 1   4   3
+ 2   4   5
+ 3   1   6
+LOG: BFS STEP 8
+LOG: processing neighbors of (1,2)
+LOG: Skipping BLOCKED tile at (0,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Found tile at (1,1) with len 4 path: NWWW
+LOG: Skipping FOUND tile at (1,3)
+LOG: maze state after BFS step
+#########:  0
+#4321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+#  323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   4   3
+ 1   4   5
+ 2   1   6
+ 3   1   1
+LOG: BFS STEP 9
+LOG: processing neighbors of (4,3)
+LOG: Skipping BLOCKED tile at (3,3)
+LOG: Skipping BLOCKED tile at (5,3)
+LOG: Found tile at (4,2) with len 4 path: SSWW
+LOG: Skipping FOUND tile at (4,4)
+LOG: maze state after BFS step
+#########:  0
+#4321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+# 4323  #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   4   5
+ 1   1   6
+ 2   1   1
+ 3   4   2
+LOG: BFS STEP 10
+LOG: processing neighbors of (4,5)
+LOG: Skipping BLOCKED tile at (3,5)
+LOG: Skipping BLOCKED tile at (5,5)
+LOG: Skipping FOUND tile at (4,4)
+LOG: Found tile at (4,6) with len 4 path: SSEE
+LOG: maze state after BFS step
+#########:  0
+#4321#3 #:  1
+# ##012##:  2
+#  #1##E#:  3
+# 43234 #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   6
+ 1   1   1
+ 2   4   2
+ 3   4   6
+LOG: BFS STEP 11
+LOG: processing neighbors of (1,6)
+LOG: Skipping BLOCKED tile at (0,6)
+LOG: Skipping FOUND tile at (2,6)
+LOG: Skipping BLOCKED tile at (1,5)
+LOG: Found tile at (1,7) with len 4 path: EENE
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+# ##012##:  2
+#  #1##E#:  3
+# 43234 #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   1   1
+ 1   4   2
+ 2   4   6
+ 3   1   7
+LOG: BFS STEP 12
+LOG: processing neighbors of (1,1)
+LOG: Skipping BLOCKED tile at (0,1)
+LOG: Found tile at (2,1) with len 5 path: NWWWS
+LOG: Skipping BLOCKED tile at (1,0)
+LOG: Skipping FOUND tile at (1,2)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#  #1##E#:  3
+# 43234 #:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   4   2
+ 1   4   6
+ 2   1   7
+ 3   2   1
+LOG: BFS STEP 13
+LOG: processing neighbors of (4,2)
+LOG: Found tile at (3,2) with len 5 path: SSWWN
+LOG: Skipping BLOCKED tile at (5,2)
+LOG: Found tile at (4,1) with len 5 path: SSWWW
+LOG: Skipping FOUND tile at (4,3)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+# 5#1##E#:  3
+#543234 #:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   4   6
+ 1   1   7
+ 2   2   1
+ 3   3   2
+ 4   4   1
+LOG: BFS STEP 14
+LOG: processing neighbors of (4,6)
+LOG: Skipping BLOCKED tile at (3,6)
+LOG: Skipping BLOCKED tile at (5,6)
+LOG: Skipping FOUND tile at (4,5)
+LOG: Found tile at (4,7) with len 5 path: SSEEE
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+# 5#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 5
+NN ROW COL
+ 0   1   7
+ 1   2   1
+ 2   3   2
+ 3   4   1
+ 4   4   7
+LOG: BFS STEP 15
+LOG: processing neighbors of (1,7)
+LOG: Skipping BLOCKED tile at (0,7)
+LOG: Skipping BLOCKED tile at (2,7)
+LOG: Skipping FOUND tile at (1,6)
+LOG: Skipping BLOCKED tile at (1,8)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+# 5#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   2   1
+ 1   3   2
+ 2   4   1
+ 3   4   7
+LOG: BFS STEP 16
+LOG: processing neighbors of (2,1)
+LOG: Skipping FOUND tile at (1,1)
+LOG: Found tile at (3,1) with len 6 path: NWWWSS
+LOG: Skipping BLOCKED tile at (2,0)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 4
+NN ROW COL
+ 0   3   2
+ 1   4   1
+ 2   4   7
+ 3   3   1
+LOG: BFS STEP 17
+LOG: processing neighbors of (3,2)
+LOG: Skipping BLOCKED tile at (2,2)
+LOG: Skipping FOUND tile at (4,2)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Skipping BLOCKED tile at (3,3)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 3
+NN ROW COL
+ 0   4   1
+ 1   4   7
+ 2   3   1
+LOG: BFS STEP 18
+LOG: processing neighbors of (4,1)
+LOG: Skipping FOUND tile at (3,1)
+LOG: Skipping BLOCKED tile at (5,1)
+LOG: Skipping BLOCKED tile at (4,0)
+LOG: Skipping FOUND tile at (4,2)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##E#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 2
+NN ROW COL
+ 0   4   7
+ 1   3   1
+LOG: BFS STEP 19
+LOG: processing neighbors of (4,7)
+LOG: Found tile at (3,7) with len 6 path: SSEEEN
+LOG: Skipping BLOCKED tile at (5,7)
+LOG: Skipping FOUND tile at (4,6)
+LOG: Skipping BLOCKED tile at (4,8)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##6#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 2
+NN ROW COL
+ 0   3   1
+ 1   3   7
+LOG: BFS STEP 20
+LOG: processing neighbors of (3,1)
+LOG: Skipping FOUND tile at (2,1)
+LOG: Skipping FOUND tile at (4,1)
+LOG: Skipping BLOCKED tile at (3,0)
+LOG: Skipping FOUND tile at (3,2)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##6#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 1
+NN ROW COL
+ 0   3   7
+LOG: BFS STEP 21
+LOG: processing neighbors of (3,7)
+LOG: Skipping BLOCKED tile at (2,7)
+LOG: Skipping FOUND tile at (4,7)
+LOG: Skipping BLOCKED tile at (3,6)
+LOG: Skipping BLOCKED tile at (3,8)
+LOG: maze state after BFS step
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##6#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 0
+NN ROW COL
+Maze AFTER BFS iteration
+#########:  0
+#4321#34#:  1
+#5##012##:  2
+#65#1##6#:  3
+#5432345#:  4
+#########:  5
+012345678
+0        
+queue count: 0
+NN ROW COL
+Maze BEFORE Setting Solution
+maze: 6 rows 9 cols
+      (2,4) start
+      (3,7) end
+maze tiles:
+#########
+#    #  #
+# ##S  ##
+#  # ##E#
+#       #
+#########
+Setting Solution Path
+LOG: solution START at (2,4)
+LOG: solution path[0] is SOUTH, set (3,4) to ONPATH
+LOG: solution path[1] is SOUTH, set (4,4) to ONPATH
+LOG: solution path[2] is EAST, set (4,5) to ONPATH
+LOG: solution path[3] is EAST, set (4,6) to ONPATH
+LOG: solution path[4] is EAST, set (4,7) to ONPATH
+LOG: solution path[5] is NORTH, set (3,7) to ONPATH
+LOG: solution END at (3,7)
+ret: 1
+Maze AFTER Setting Solution
+maze: 6 rows 9 cols
+      (2,4) start
+      (3,7) end
+maze tiles:
+#########
+#    #  #
+# ##S  ##
+#  #.##E#
+#   ....#
+#########
+#+END_SRC
+

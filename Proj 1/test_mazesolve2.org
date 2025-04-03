@@ -1,0 +1,624 @@
+#+TITLE: Problem 2 Basic Tile/Maze Function Tests
+#+TESTY: PREFIX="prob2"
+#+TESTY: USE_VALGRIND=1
+
+* tile_print_path1
+#+TESTY: program='./test_mazesolve_funcs tile_print_path1'
+#+BEGIN_SRC sh
+IF_TEST("tile_print_path1") {
+    // Checks that the VERBOSE and COMPACT format for printing paths
+    // (arrays of directions) is correct.
+    direction_t *path = malloc(sizeof(direction_t)*6);
+    path[0] = NORTH;        // heap-allocated for bounds
+    path[1] = EAST;         // checking in valgrind
+    path[2] = EAST;
+    path[3] = SOUTH;
+    path[4] = SOUTH;
+    path[5] = WEST;
+    tile_t tile = {.type=OPEN, .path_len= 6, .path=path};
+    printf("VERBOSE FORMAT:\n");
+    tile_print_path(&tile, PATH_FORMAT_VERBOSE);
+    printf("COMPACT FORMAT: {");
+    tile_print_path(&tile, PATH_FORMAT_COMPACT);
+    printf("}\n");
+    free(path);
+}
+---OUTPUT---
+VERBOSE FORMAT:
+path length: 6
+ 0: NORTH
+ 1: EAST
+ 2: EAST
+ 3: SOUTH
+ 4: SOUTH
+ 5: WEST
+COMPACT FORMAT: {NEESSW}
+#+END_SRC
+
+* tile_print_path2
+#+TESTY: program='./test_mazesolve_funcs tile_print_path2'
+#+BEGIN_SRC sh
+IF_TEST("tile_print_path2") {
+    // Check special cases of printing a length-0 path and printing a
+    // NULL path.
+    printf("Length 0 path\n");
+    direction_t *path = malloc(sizeof(direction_t)*0);
+    tile_t tile = {.type=START, .path_len= 0, .path=path};
+    printf("VERBOSE FORMAT:\n");
+    tile_print_path(&tile, PATH_FORMAT_VERBOSE);
+    printf("COMPACT FORMAT: {");
+    tile_print_path(&tile, PATH_FORMAT_COMPACT);
+    printf("}\n");
+    free(path);
+    printf("NULL path\n");
+    tile.path_len = -1;
+    tile.path = NULL;
+    printf("VERBOSE FORMAT:\n");
+    tile_print_path(&tile, PATH_FORMAT_VERBOSE);
+    printf("COMPACT FORMAT:\n");
+    tile_print_path(&tile, PATH_FORMAT_COMPACT);
+    printf("\n");
+}
+---OUTPUT---
+Length 0 path
+VERBOSE FORMAT:
+path length: 0
+COMPACT FORMAT: {}
+NULL path
+VERBOSE FORMAT:
+No path found
+COMPACT FORMAT:
+No path found
+
+#+END_SRC
+
+* tile_extend_path1
+#+TESTY: program='./test_mazesolve_funcs tile_extend_path1'
+#+BEGIN_SRC sh
+IF_TEST("tile_extend_path1") {
+    // Check that the path from one tile can be extended to another
+    direction_t *src_path = malloc(sizeof(direction_t)*5);
+    src_path[0] = NORTH;        // heap-allocated for bounds
+    src_path[1] = EAST;         // checking in valgrind
+    src_path[2] = EAST;
+    src_path[3] = SOUTH;
+    src_path[4] = SOUTH;
+    tile_t src = {.type=OPEN, .path_len= 5, .path=src_path};
+    tile_t dst = {.type=OPEN, .path_len=-1, .path=NULL};
+    tile_extend_path(&src,&dst,WEST);
+    tile_print_path(&dst, PATH_FORMAT_VERBOSE);
+    printf("COMPACT: {");
+    tile_print_path(&dst, PATH_FORMAT_COMPACT);
+    printf("}\n");
+    free(dst.path); free(src_path);
+}
+---OUTPUT---
+path length: 6
+ 0: NORTH
+ 1: EAST
+ 2: EAST
+ 3: SOUTH
+ 4: SOUTH
+ 5: WEST
+COMPACT: {NEESSW}
+#+END_SRC
+
+* tile_extend_path2
+#+TESTY: program='./test_mazesolve_funcs tile_extend_path2'
+#+BEGIN_SRC sh
+IF_TEST("tile_extend_path2") {
+    // Checks special case of path extension from a 0-length path
+    // which applies to the Start tile and its neighbors.
+    direction_t *src_path =          // heap-allocated for bounds
+      malloc(sizeof(direction_t)*0); // checking in valgrind
+    tile_t src = {.type=START, .path_len= 0, .path=src_path};
+    tile_t dst = {.type=OPEN,  .path_len=-1, .path=NULL};
+    tile_extend_path(&src,&dst,NORTH);
+    tile_print_path(&dst, PATH_FORMAT_VERBOSE);
+    free(dst.path); free(src_path);
+}
+---OUTPUT---
+path length: 1
+ 0: NORTH
+#+END_SRC
+
+* maze_allocate_free1
+#+TESTY: program='./test_mazesolve_funcs maze_allocate_free1'
+#+BEGIN_SRC sh
+IF_TEST("maze_allocate_free1") {
+    int rows=3, cols=5;
+    maze_t *maze = maze_allocate(rows,cols);
+    printf("maze->rows: %d\n",maze->rows);
+    printf("maze->cols: %d\n",maze->cols);
+    printf("maze->start_row: %d\n",maze->start_row);
+    printf("maze->start_col: %d\n",maze->start_col);
+    printf("maze->end_row: %d\n",maze->end_row);
+    printf("maze->end_col: %d\n",maze->end_col);
+    printf("maze->queue: %p\n",maze->queue);
+    for(int i=0; i<rows; i++){
+      for(int j=0; j<cols; j++){
+        printf("maze->tiles[%d][%d]: ",i,j);
+        tile_t *tile = &maze->tiles[i][j];
+        printf("type %d state %d path_len %d path %p\n",
+               tile->type, tile->state,
+               tile->path_len, tile->path);
+      }
+    }
+    maze_free(maze);
+}
+---OUTPUT---
+maze->rows: 3
+maze->cols: 5
+maze->start_row: -1
+maze->start_col: -1
+maze->end_row: -1
+maze->end_col: -1
+maze->queue: (nil)
+maze->tiles[0][0]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[0][1]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[0][2]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[0][3]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[0][4]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[1][0]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[1][1]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[1][2]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[1][3]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[1][4]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[2][0]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[2][1]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[2][2]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[2][3]: type 0 state 1 path_len -1 path (nil)
+maze->tiles[2][4]: type 0 state 1 path_len -1 path (nil)
+#+END_SRC
+
+* maze_allocate_free2
+#+TESTY: program='./test_mazesolve_funcs maze_allocate_free2'
+#+BEGIN_SRC sh
+IF_TEST("maze_allocate_free2") {
+    // Allocates a maze and sets some tile information to include
+    // state, paths, etc. then prints out tiles in the maze. There are
+    // non-NULL paths in some tiles and the maze queue is initialized
+    // which checks that the maze_free() function de-allocates all
+    // non-NULL paths and the queue.
+    int rows=4, cols=2;
+    maze_t *maze = maze_allocate(rows,cols);
+    maze->start_row = 3;
+    maze->start_col = 1;
+    maze->end_row = 1;
+    maze->end_col = 0;
+    maze->tiles[3][1].state = START;
+    maze->tiles[3][1].path_len = 0;
+    maze->tiles[3][1].path = malloc(sizeof(direction_t)*0);
+    maze->tiles[2][1].path_len = 1;
+    maze->tiles[2][1].path = malloc(sizeof(direction_t)*1);
+    maze->tiles[2][1].path[0] = NORTH;
+    maze->tiles[1][1].path_len = 2;
+    maze->tiles[1][1].path = malloc(sizeof(direction_t)*2);
+    maze->tiles[1][1].path[0] = NORTH;
+    maze->tiles[1][1].path[1] = NORTH;
+    maze->tiles[1][0].state = END;
+    maze->tiles[1][0].path_len = 3;
+    maze->tiles[1][0].path = malloc(sizeof(direction_t)*3);
+    maze->tiles[1][0].path[0] = NORTH;
+    maze->tiles[1][0].path[1] = NORTH;
+    maze->tiles[1][0].path[2] = WEST;
+    maze->queue = rcqueue_allocate();
+    rcqueue_add_rear(maze->queue, 1, 0);
+    printf("maze->rows: %d\n",maze->rows);
+    printf("maze->cols: %d\n",maze->cols);
+    printf("maze->start_row: %d\n",maze->start_row);
+    printf("maze->start_col: %d\n",maze->start_col);
+    printf("maze->end_row: %d\n",maze->end_row);
+    printf("maze->end_col: %d\n",maze->end_col);
+    for(int i=0; i<rows; i++){
+      for(int j=0; j<cols; j++){
+        printf("maze->tiles[%d][%d]: ",i,j);
+        tile_t *tile = &maze->tiles[i][j];
+        printf("type %d state %d path_len %d path ",
+               tile->type, tile->state,
+               tile->path_len);
+        tile_print_path(tile,PATH_FORMAT_COMPACT);
+        if(tile->path!=NULL){ printf("\n"); }
+      }
+    }
+    printf("maze->queue: \n");
+    rcqueue_print(maze->queue);
+    maze_free(maze);
+}
+---OUTPUT---
+maze->rows: 4
+maze->cols: 2
+maze->start_row: 3
+maze->start_col: 1
+maze->end_row: 1
+maze->end_col: 0
+maze->tiles[0][0]: type 0 state 1 path_len -1 path No path found
+maze->tiles[0][1]: type 0 state 1 path_len -1 path No path found
+maze->tiles[1][0]: type 0 state 5 path_len 3 path NNW
+maze->tiles[1][1]: type 0 state 1 path_len 2 path NN
+maze->tiles[2][0]: type 0 state 1 path_len -1 path No path found
+maze->tiles[2][1]: type 0 state 1 path_len 1 path N
+maze->tiles[3][0]: type 0 state 1 path_len -1 path No path found
+maze->tiles[3][1]: type 0 state 4 path_len 0 path 
+maze->queue: 
+queue count: 1
+NN ROW COL
+ 0   1   0
+#+END_SRC
+
+* maze_tile_blocked1
+#+TESTY: program='./test_mazesolve_funcs maze_tile_blocked1'
+#+BEGIN_SRC sh
+IF_TEST("maze_tile_blocked1") {
+    maze_t maze = {.rows=3, .cols=5, .tiles=NULL};
+    int r,c,ret;
+    r=-1; c=2; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=3; c=2; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=1; c=-1; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=1; c=6; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+}
+---OUTPUT---
+(-1,2) blocked? 1
+(3,2) blocked? 1
+(1,-1) blocked? 1
+(1,6) blocked? 1
+#+END_SRC
+
+* maze_tile_blocked2
+#+TESTY: program='./test_mazesolve_funcs maze_tile_blocked2'
+#+BEGIN_SRC sh
+IF_TEST("maze_tile_blocked2") {
+    // Checks correct blocked tile checking for in bounds cases some
+    // of which are walls and Blocked and others of which are OPEN,
+    // START, END, and ONPATH tiles which are not Blocked.
+    tile_t rows[5][3] = {
+      { {.type=WALL},{.type=WALL},{.type=START} },// 0
+      { {.type=OPEN},{.type=OPEN},{.type=ONPATH}},// 1
+      { {.type=END}, {.type=OPEN},{.type=WALL}  },// 2
+      { {.type=WALL},{.type=OPEN},{.type=WALL}  },// 3
+      { {.type=OPEN},{.type=OPEN},{.type=OPEN}  },// 4
+      //     0            1             2
+    };
+    tile_t *tiles[5] =
+      {rows[0],rows[1],rows[2],rows[3],rows[4]};
+    maze_t maze = {.rows=5, .cols=3, .tiles=tiles};
+    int r,c,ret;
+    r=0; c=0; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=0; c=2; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=1; c=1; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=2; c=0; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=4; c=1; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=3; c=2; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=4; c=2; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+    r=1; c=2; ret = maze_tile_blocked(&maze,r,c);
+    printf("(%d,%d) blocked? %d\n",r,c,ret);
+}
+---OUTPUT---
+(0,0) blocked? 1
+(0,2) blocked? 0
+(1,1) blocked? 0
+(2,0) blocked? 0
+(4,1) blocked? 0
+(3,2) blocked? 1
+(4,2) blocked? 0
+(1,2) blocked? 0
+#+END_SRC
+
+* maze_print_tiles1
+#+TESTY: program='./test_mazesolve_funcs maze_print_tiles1'
+#+BEGIN_SRC sh
+IF_TEST("maze_print_tiles1") {
+    // Prints a maze that is created from a string. No ONPATH tiles
+    // are present.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("PRINTING TILES:\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+PRINTING TILES:
+maze: 7 rows 16 cols
+      (1,1) start
+      (3,8) end
+maze tiles:
+################
+#S             #
+# ### ###### # #
+# ### ##E  #   #
+# ### #### ##  #
+#              #
+################
+#+END_SRC
+
+* maze_print_tiles2
+#+TESTY: program='./test_mazesolve_funcs maze_print_tiles2'
+#+BEGIN_SRC sh
+IF_TEST("maze_print_tiles2") {
+    // Prints a maze that is created from a string. A complete path of
+    // ONPATH tiles from START to END is present.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "#.### ###### # #\n"
+      "#.### ##E..#   #\n"
+      "#.### ####.##  #\n"
+      "#..........    #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("PRINTING TILES:\n");
+    maze_print_tiles(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+PRINTING TILES:
+maze: 7 rows 16 cols
+      (1,1) start
+      (3,8) end
+maze tiles:
+################
+#S             #
+#.### ###### # #
+#.### ##E..#   #
+#.### ####.##  #
+#..........    #
+################
+#+END_SRC
+
+* maze_print_tiles3
+#+TESTY: program='./test_mazesolve_funcs maze_print_tiles3'
+#+BEGIN_SRC sh
+IF_TEST("maze_print_tiles3") {
+    // Prints a maze with tiles that are determined from raw
+    // structs. The maze includes most tile types that should be
+    // printed normally.
+    tile_t rows[5][3] = {
+      { {.type=WALL},{.type=WALL},  {.type=START} },// 0
+      { {.type=OPEN},{.type=ONPATH},{.type=ONPATH}},// 1
+      { {.type=END}, {.type=OPEN},  {.type=WALL}  },// 2
+      { {.type=WALL},{.type=OPEN},  {.type=WALL}  },// 3
+      { {.type=OPEN},{.type=OPEN},  {.type=OPEN}  },// 4
+      //     0            1             2
+    };
+    tile_t *tiles[5] =
+      {rows[0],rows[1],rows[2],rows[3],rows[4]};
+    maze_t maze = {.rows=5, .cols=3, .tiles=tiles};
+    printf("PRINTING TILES:\n");
+    maze_print_tiles(&maze);
+}
+---OUTPUT---
+PRINTING TILES:
+maze: 5 rows 3 cols
+      (0,0) start
+      (0,0) end
+maze tiles:
+##S
+ ..
+E #
+# #
+   
+#+END_SRC
+
+* maze_print_state1
+#+TESTY: program='./test_mazesolve_funcs maze_print_state1'
+#+BEGIN_SRC sh
+IF_TEST("maze_print_state1") {
+    // Print the state of searching the following 3x2 maze (vertical
+    // bars | show the boundaries).
+    //
+    // |S | 0
+    // |# | 1
+    // |E | 2
+    //  01
+    //
+    // In the test case, the maze is set up to show progress to tile
+    // (1,1) with paths determined for (0,0), (0,1), and (1,1) and
+    // (1,1) is in the search queue.
+    direction_t path00[] = {};
+    direction_t path01[] = {EAST};
+    direction_t path11[] = {EAST,SOUTH};
+    tile_t rows[3][2] = {
+      { {.type=START, .state=FOUND,    .path_len= 0, .path=path00 }, // tiles[0][0] 
+        {.type=ONPATH,.state=FOUND,    .path_len= 1, .path=path01 }, // tiles[0][1] 
+      },
+      { {.type=WALL,  .state=NOTFOUND, .path_len=-1, .path=NULL },   // tiles[1][0] 
+        {.type=OPEN,  .state=FOUND,    .path_len= 2, .path=path11 }, // tiles[1][1] 
+      },
+      { {.type=END,   .state=NOTFOUND, .path_len=-1, .path=NULL },   // tiles[2][0] 
+        {.type=OPEN,  .state=NOTFOUND, .path_len=-1, .path=NULL },   // tiles[2][1] 
+      },
+    };
+    tile_t *tiles[] = {rows[0], rows[1], rows[2] };
+    rcnode_t node = {.row=1, .col=1, .next=NULL };
+    rcqueue_t queue = {.count=1, .front=&node, .rear=&node};
+    maze_t maze = {
+      .rows=3, .cols=2, .tiles = tiles, .queue=&queue,
+      .start_row=0, .start_col=0, .end_row=2, .end_col=0,
+    };
+    maze_print_state(&maze);
+}
+---OUTPUT---
+01:  0
+#2:  1
+E :  2
+01
+0 
+queue count: 1
+NN ROW COL
+ 0   1   1
+#+END_SRC
+
+* maze_print_state2
+#+TESTY: program='./test_mazesolve_funcs maze_print_state2'
+#+BEGIN_SRC sh
+IF_TEST("maze_print_state2") {
+    // Creates a large-ish maze of mostly open tiles and assigns path
+    // lengths to open tiles before printing. Output will show
+    // formating of the axis labels and digits indicating length from
+    // (0,0) including printing a for 10, b for 20, c for 30 using
+    // characters from the digit10_chars[] global array. START and END
+    // tiles are included but both have a path so should print the
+    // last digit of the path length rather than S/E.
+    int rows=15, cols=35;
+    maze_t *maze = maze_allocate(rows,cols);
+    for(int i=0; i<rows; i++){
+      for(int j=0; j<cols; j++){
+        if((i>0 && i==j) || i==rows-1 || j==cols-1){
+          maze->tiles[i][j].type = WALL;
+          maze->tiles[i][j].state = NOTFOUND;
+        }
+        else{
+          maze->tiles[i][j].path = malloc(sizeof(direction_t)*(i+j));
+          maze->tiles[i][j].path_len = i+j;
+          maze->tiles[i][j].type = OPEN;
+          maze->tiles[i][j].state = FOUND;
+        }
+      }
+    }
+    maze->tiles[0][0].type = START;
+    maze->tiles[rows-2][cols-2].type=END;
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+0123456789a123456789b123456789c123#:  0
+1#3456789a123456789b123456789c1234#:  1
+23#56789a123456789b123456789c12345#:  2
+345#789a123456789b123456789c123456#:  3
+4567#9a123456789b123456789c1234567#:  4
+56789#123456789b123456789c12345678#:  5
+6789a1#3456789b123456789c123456789#:  6
+789a123#56789b123456789c123456789d#:  7
+89a12345#789b123456789c123456789d1#:  8
+9a1234567#9b123456789c123456789d12#:  9
+a123456789#123456789c123456789d123#: 10
+123456789b1#3456789c123456789d1234#: 11
+23456789b123#56789c123456789d12345#: 12
+3456789b12345#789c123456789d123456#: 13
+###################################: 14
+01234567890123456789012345678901234
+0         1         2         3    
+null queue
+#+END_SRC
+
+* maze_print_state3
+#+TESTY: program='./test_mazesolve_funcs maze_print_state3'
+#+BEGIN_SRC sh
+IF_TEST("maze_print_state3") {
+    // Prints prints the state of a maze that has no paths set in
+    // it. This should look identical to the output of
+    // maze_print_tiles() except that the header information is not
+    // present and axis labels are printed. No numbers appear as there
+    // are no paths set in the maze.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    printf("PRINTING STATE WITH NO PATHS:\n");
+    maze_print_state(maze);
+    maze_free(maze);
+    maze_str =
+      "################\n"
+      "#S             #\n"
+      "#.### ###### # #\n"
+      "#.### ##E..#   #\n"
+      "#.### ####.##  #\n"
+      "#..........    #\n"
+      "################\n";
+    maze = maze_from_string(maze_str);
+    printf("PRINTING STATE WITH NO PATHS:\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+PRINTING STATE WITH NO PATHS:
+################:  0
+#S             #:  1
+# ### ###### # #:  2
+# ### ##E  #   #:  3
+# ### #### ##  #:  4
+#              #:  5
+################:  6
+0123456789012345
+0         1     
+null queue
+PRINTING STATE WITH NO PATHS:
+################:  0
+#S             #:  1
+#.### ###### # #:  2
+#.### ##E..#   #:  3
+#.### ####.##  #:  4
+#..........    #:  5
+################:  6
+0123456789012345
+0         1     
+null queue
+#+END_SRC
+
+* maze_print_state4
+#+TESTY: program='./test_mazesolve_funcs maze_print_state4'
+#+BEGIN_SRC sh
+IF_TEST("maze_print_state4") {
+    // Computer approximate path lengths from the start tile for each
+    // non-wall tile in the given maze and prints the state to check
+    // formatting. The exact paths are not computed nor allocated,
+    // only a rough path length which is stored in each tile.
+    char *maze_str =
+      "################\n"
+      "#S             #\n"
+      "# ### ###### # #\n"
+      "# ### ##E  #   #\n"
+      "# ### #### ##  #\n"
+      "#              #\n"
+      "################\n";
+    maze_t *maze = maze_from_string(maze_str);
+    for(int i=0; i<maze->rows; i++){
+      for(int j=0; j<maze->cols; j++){
+        tile_t *tile = &maze->tiles[i][j];
+        if(tile->type != WALL){
+          tile->state = FOUND;
+          tile->path_len = i-1 + j-1;
+        }
+      }
+    }
+    printf("PRINTING STATE WITH APPROXIMATE PATHS:\n");
+    maze_print_state(maze);
+    maze_free(maze);
+}
+---OUTPUT---
+PRINTING STATE WITH APPROXIMATE PATHS:
+################:  0
+#0123456789a123#:  1
+#1###5######2#4#:  2
+#2###6##9a1#345#:  3
+#3###7####2##56#:  4
+#456789a1234567#:  5
+################:  6
+0123456789012345
+0         1     
+null queue
+#+END_SRC
+
